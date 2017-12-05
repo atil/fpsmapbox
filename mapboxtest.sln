@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mapboxtest", "mapboxtest.csproj", "{EFED9AAE-BCCB-F558-2A8A-2B2D209DA009}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mapboxtest.Editor", "mapboxtest.Editor.csproj", "{8F03813F-5283-F3F0-2D03-A13C23EA06A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EFED9AAE-BCCB-F558-2A8A-2B2D209DA009}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFED9AAE-BCCB-F558-2A8A-2B2D209DA009}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFED9AAE-BCCB-F558-2A8A-2B2D209DA009}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFED9AAE-BCCB-F558-2A8A-2B2D209DA009}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F03813F-5283-F3F0-2D03-A13C23EA06A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F03813F-5283-F3F0-2D03-A13C23EA06A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F03813F-5283-F3F0-2D03-A13C23EA06A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F03813F-5283-F3F0-2D03-A13C23EA06A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
