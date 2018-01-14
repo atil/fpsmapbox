@@ -1,8 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using NUnit.Framework;
 using UnityEngine;
 
+/// <summary>
+/// Q3-based first person controller
+/// </summary>
 public class FpsController : MonoBehaviour
 {
     // It's better for camera to be a seperate object, not under the controller
@@ -61,6 +65,9 @@ public class FpsController : MonoBehaviour
     // How precise the controller can change direction while not grounded 
     private const float AirControlPrecision = 16f;
 
+    // When moving only forward, increase air control dramatically
+    private const float AirControlAdditionForward = 30f;
+
     // Caching this always a good practice
     private Transform _transform;
 
@@ -78,15 +85,12 @@ public class FpsController : MonoBehaviour
 
     // Caching...
     private Vector3 _screenMidPoint;
-
-    // Some information to persist between frames or between Update() - FixedUpdate()
-    private bool _isGroundedInThisFrame;
-    private bool _isGroundedInPrevFrame;
-    private bool _isGonnaJump;
-
     private readonly Collider[] _overlappingColliders = new Collider[10]; // Hope no more is needed
 
-    private Vector3 _wishDirDebug;
+    // Some information to persist
+    private bool _isGroundedInPrevFrame; // ...between frames
+    private bool _isGonnaJump; // ...between FixedUpdate() and Update()
+    private Vector3 _wishDirDebug; // ...between FixedUpdate() and OnGUI()
 
     private void Start()
     {
@@ -146,10 +150,10 @@ public class FpsController : MonoBehaviour
             // Currently you have to catch that frame to be able to bhop
             if (_isGroundedInPrevFrame && !_isGonnaJump)
             {
-                ApplyFriction(ref _velocity, Friction, FrictionSpeedThreshold, dt);
+                ApplyFriction(ref _velocity, dt);
             }
 
-            Accelerate(ref _velocity, wishDir, MaxSpeedAlongOneDimension, GroundAccelerationCoeff, dt);
+            Accelerate(ref _velocity, wishDir, GroundAccelerationCoeff, dt);
 
             _velocity.y = 0; // Ground movement always hard-resets vertical displacement
             if (_isGonnaJump)
@@ -164,7 +168,7 @@ public class FpsController : MonoBehaviour
             // then slow down instead of speeding up
             var coeff = Vector3.Dot(_velocity, wishDir) > 0 ? AirAccelCoeff : AirDecelCoeff;
 
-            Accelerate(ref _velocity, wishDir, MaxSpeedAlongOneDimension, coeff, dt);
+            Accelerate(ref _velocity, wishDir, coeff, dt);
 
             if (Mathf.Abs(_moveInput.z) > 0.0001) // Pure side velocity doesn't allow air control
             {
@@ -220,22 +224,22 @@ public class FpsController : MonoBehaviour
         _hook.Draw(_camTransform.position - Vector3.up * 0.4f);
     }
 
-    private void Accelerate(ref Vector3 playerVelocity, Vector3 accelDir, float maxSpeedAlongOneDimension, float accelCoeff, float dt)
+    private void Accelerate(ref Vector3 playerVelocity, Vector3 accelDir, float accelCoeff, float dt)
     {
         // How much speed we already have in the direction we want to speed up
         var projSpeed = Vector3.Dot(playerVelocity, accelDir);
 
         // How much speed we need to add (in that direction) to reach max speed
-        var addSpeed = maxSpeedAlongOneDimension - projSpeed;
+        var addSpeed = MaxSpeedAlongOneDimension - projSpeed;
         if (addSpeed <= 0)
         {
             return;
         }
 
         // How much we are gonna increase our speed
-        // maxSpeed * dt => the real deal. a = v * (1 / t)
+        // maxSpeed * dt => the real deal. a = v / t
         // accelCoeff => ad hoc approach to make it feel better
-        var accelAmount = accelCoeff * maxSpeedAlongOneDimension * dt;
+        var accelAmount = accelCoeff * MaxSpeedAlongOneDimension * dt;
 
         // If we are accelerating more than in a way that we exceed maxSpeedInOneDimension, crop it to max
         if (accelAmount > addSpeed)
@@ -246,7 +250,7 @@ public class FpsController : MonoBehaviour
         playerVelocity += accelDir * accelAmount; // Magic happens here
     }
 
-    private void ApplyFriction(ref Vector3 playerVelocity, float frictionCoeff, float frictionSpeedThreshold, float dt)
+    private void ApplyFriction(ref Vector3 playerVelocity, float dt)
     {
         var speed = playerVelocity.magnitude;
         if (speed <= 0.00001)
@@ -254,8 +258,8 @@ public class FpsController : MonoBehaviour
             return;
         }
 
-        var downLimit = Mathf.Max(speed, frictionSpeedThreshold); // Don't drop below treshold
-        var dropAmount = speed - (downLimit * frictionCoeff * dt);
+        var downLimit = Mathf.Max(speed, FrictionSpeedThreshold); // Don't drop below treshold
+        var dropAmount = speed - (downLimit * Friction * dt);
         if (dropAmount < 0)
         {
             dropAmount = 0;
@@ -274,6 +278,14 @@ public class FpsController : MonoBehaviour
         if (dot > 0)
         {
             var k = AirControlPrecision * dot * dot * dt;
+
+            // CPMA thingy:
+            // If we want pure forward movement, we have much more air control
+            var accelDirLocal = _camTransform.InverseTransformDirectionHorizontal(accelDir);
+            if (Mathf.Abs(accelDirLocal.x) < 0.0001 && Mathf.Abs(accelDirLocal.z) > 0)
+            {
+                k *= AirControlAdditionForward;
+            }
 
             // A little bit closer to accelDir
             playerDirHorz = playerDirHorz * playerSpeedHorz + accelDir * k;
@@ -319,7 +331,7 @@ public class FpsController : MonoBehaviour
                 float collisionDistance;
 
                 if (Physics.ComputePenetration(
-                    playerColl, playerColl.transform.position, playerColl.transform.rotation, // TODO: These could be cached
+                    playerColl, playerColl.transform.position, playerColl.transform.rotation,
                     envColl, envColl.transform.position, envColl.transform.rotation,
                     out collisionNormal, out collisionDistance))
                 {
