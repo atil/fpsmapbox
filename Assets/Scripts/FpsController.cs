@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using NUnit.Framework;
 using UnityEngine;
 
 /// <summary>
@@ -13,6 +11,9 @@ public class FpsController : MonoBehaviour
     // Since we update the position in FixedUpdate(), it would cause a jittery vision
     [SerializeField]
     private Transform _camTransform;
+
+    [SerializeField]
+    private Transform _hookSlot;
 
     // Collision resolving is done with respect to these volumes
     // There are more than one
@@ -99,7 +100,7 @@ public class FpsController : MonoBehaviour
         _mouseLook = new MouseLook(_camTransform);
         _screenMidPoint = new Vector3(Screen.width / 2f, Screen.height / 2f, 0);
 
-        _hook = new GrapplingHook(_hookVisual, _screenMidPoint, _camTransform.GetComponent<Camera>(), _excludedLayers);
+        _hook = new GrapplingHook(_hookVisual, _hookSlot, _screenMidPoint, _camTransform.GetComponent<Camera>(), _excludedLayers);
     }
 
     // Only for debug drawing
@@ -221,7 +222,7 @@ public class FpsController : MonoBehaviour
             _hook.Reset();
         }
 
-        _hook.Draw(_camTransform.position - Vector3.up * 0.4f);
+        _hook.Draw();
     }
 
     private void Accelerate(ref Vector3 playerVelocity, Vector3 accelDir, float accelCoeff, float dt)
@@ -281,8 +282,10 @@ public class FpsController : MonoBehaviour
 
             // CPMA thingy:
             // If we want pure forward movement, we have much more air control
+            // Of course this only happens when we're not hooked
             var accelDirLocal = _camTransform.InverseTransformDirectionHorizontal(accelDir);
-            if (Mathf.Abs(accelDirLocal.x) < 0.0001 && Mathf.Abs(accelDirLocal.z) > 0)
+            var isPureForward = Mathf.Abs(accelDirLocal.x) < 0.0001 && Mathf.Abs(accelDirLocal.z) > 0;
+            if (isPureForward && _hook.State == HookState.Off)
             {
                 k *= AirControlAdditionForward;
             }

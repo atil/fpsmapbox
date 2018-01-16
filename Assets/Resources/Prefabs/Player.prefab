@@ -80,15 +80,15 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1742898383018988}
-  m_LocalRotation: {x: -0, y: 0.79335356, z: -0, w: 0.60876125}
-  m_LocalPosition: {x: -26, y: 10, z: -24}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4636928323309782}
   - {fileID: 4672265939871800}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 105.00001, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4672265939871800
 Transform:
   m_ObjectHideFlags: 1
@@ -153,6 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _camTransform: {fileID: 0}
+  _hookSlot: {fileID: 0}
   _collisionElements:
   - {fileID: 136614677456152118}
   - {fileID: 136691836943955572}
@@ -161,6 +162,7 @@ MonoBehaviour:
     m_Bits: 768
   _hookVisual: {fileID: 1226400764845670, guid: 98402a3f541d6e94085b8c79ea943832,
     type: 2}
+  _debugInfo: 0
 --- !u!136 &136614677456152118
 CapsuleCollider:
   m_ObjectHideFlags: 1
