@@ -117,8 +117,8 @@ GameObject:
   m_Component:
   - component: {fileID: 110210641}
   - component: {fileID: 110210642}
-  - component: {fileID: 110210643}
   - component: {fileID: 110210644}
+  - component: {fileID: 110210643}
   m_Layer: 0
   m_Name: Map
   m_TagString: Untagged

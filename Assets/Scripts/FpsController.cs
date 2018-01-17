@@ -20,7 +20,7 @@ public class FpsController : MonoBehaviour
     // Because apart from the main capsule itself,
     // another one is needed for allowing 'ghost jumps'
     [SerializeField]
-    private List<Collider> _collisionElements;
+    private List<CapsuleCollider> _collisionElements;
 
     // Collision will not happend with these layers
     // One of them has to be this controller's own layer
@@ -182,7 +182,15 @@ public class FpsController : MonoBehaviour
         _hook.ApplyHookAcceleration(ref _velocity, _transform.position - Vector3.up * 0.4f);
         _hook.ApplyHookDisplacement(ref _velocity, ref collisionDisplacement, _transform.position - Vector3.up * 0.4f);
 
-        _transform.position += _velocity * dt; // Actual displacement
+        var displacement = _velocity * dt;
+
+        // If we're moving too fast, make sure we don't hollow through any collider
+        if (displacement.magnitude > _collisionElements[0].radius) // First collider is used as reference
+        {
+            ClampDisplacement(ref _velocity, ref displacement, _transform.position);
+        }
+
+        _transform.position += displacement;
         _transform.position += collisionDisplacement; // Pushing out of environment
         _isGroundedInPrevFrame = isGrounded;
     }
@@ -223,6 +231,11 @@ public class FpsController : MonoBehaviour
         }
 
         _hook.Draw();
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            _transform.position = _transform.position.WithY(500);
+        }
     }
 
     private void Accelerate(ref Vector3 playerVelocity, Vector3 accelDir, float accelCoeff, float dt)
@@ -372,6 +385,16 @@ public class FpsController : MonoBehaviour
 
         displacement = totalDisplacement;
         return isGrounded;
+    }
+
+    // If there's something between the current position and the next, clamp displacement
+    private void ClampDisplacement(ref Vector3 playerVelocity, ref Vector3 displacement, Vector3 playerPosition)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(playerPosition, playerVelocity.normalized, out hit, displacement.magnitude, ~_excludedLayers))
+        {
+            displacement = hit.point - playerPosition;
+        }
     }
 
     public void ResetAt(Transform t)
