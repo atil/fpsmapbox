@@ -79,6 +79,7 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 					//"ele" is used in contour layer for elevation
 					hf = Convert.ToSingle(feature.Properties["ele"]);
 					hf *= _scale;
+				    hf *= 2;
 				}
 			}
 

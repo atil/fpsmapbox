@@ -7,6 +7,16 @@ using UnityEngine;
 /// </summary>
 public class FpsController : MonoBehaviour
 {
+    public float HookFuel
+    {
+        get { return _hook.GetRemainingFuel(); }
+    }
+
+    public float Speed
+    {
+        get { return _velocity.magnitude; }
+    }
+
     // It's better for camera to be a seperate object, not under the controller
     // Since we update the position in FixedUpdate(), it would cause a jittery vision
     [SerializeField]
@@ -49,7 +59,7 @@ public class FpsController : MonoBehaviour
     // Along a dimension, we can't go faster than this
     // This dimension is relative to the controller, not global
     // Meaning that "max speend along X" means "max speed along 'right side' of the controller"
-    private const float MaxSpeedAlongOneDimension = 8f;
+    private const float MaxSpeedAlongOneDimension = 16f;
 
     // How fast the controller decelerates on the grounded
     private const float Friction = 15;
@@ -85,7 +95,6 @@ public class FpsController : MonoBehaviour
     private Vector3 _moveInput;
 
     // Caching...
-    private Vector3 _screenMidPoint;
     private readonly Collider[] _overlappingColliders = new Collider[10]; // Hope no more is needed
 
     // Some information to persist
@@ -98,9 +107,8 @@ public class FpsController : MonoBehaviour
         Application.targetFrameRate = 60; // My laptop is shitty and burn itself to death if not for this
         _transform = transform;
         _mouseLook = new MouseLook(_camTransform);
-        _screenMidPoint = new Vector3(Screen.width / 2f, Screen.height / 2f, 0);
 
-        _hook = new GrapplingHook(_hookVisual, _hookSlot, _screenMidPoint, _camTransform.GetComponent<Camera>(), _excludedLayers);
+        _hook = new GrapplingHook(_hookVisual, _hookSlot, _camTransform.GetComponent<Camera>(), _excludedLayers);
     }
 
     // Only for debug drawing
@@ -231,11 +239,6 @@ public class FpsController : MonoBehaviour
         }
 
         _hook.Draw();
-
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            _transform.position = _transform.position.WithY(500);
-        }
     }
 
     private void Accelerate(ref Vector3 playerVelocity, Vector3 accelDir, float accelCoeff, float dt)

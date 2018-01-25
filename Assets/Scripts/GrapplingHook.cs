@@ -15,27 +15,29 @@ public enum HookState
 
 public class GrapplingHook
 {
-
     // How strong the spring will feel
     private const float SpringTightness = 0.5f;
 
     // The higher this number is, the quicker the spring will come to rest
     private const float DampingCoeff = 0.01f;
 
+    private const float FuelTankCapacity = 3f;
+
+    private const float FuelBurnRate = 1f;
+
     public HookState State { get; private set; }
 
     private readonly Transform _hookVisual;
-    private readonly Vector3 _screenMidPoint;
     private readonly Camera _mainCamera;
     private readonly LayerMask _excludedLayers;
     private readonly Transform _hookSlot;
 
     private Vector3 _springEnd;
     private float _hookLength;
+    private float _remainingFuel;
 
-    public GrapplingHook(GameObject hookPrefab, Transform hookSlot, Vector3 screenMidPoint, Camera camera, LayerMask excludedLayers)
+    public GrapplingHook(GameObject hookPrefab, Transform hookSlot, Camera camera, LayerMask excludedLayers)
     {
-        _screenMidPoint = screenMidPoint;
         _hookSlot = hookSlot;
         _hookVisual = GameObject.Instantiate(hookPrefab).transform;
         _hookVisual.gameObject.SetActive(false);
@@ -51,13 +53,16 @@ public class GrapplingHook
             if (Input.GetMouseButtonDown(0))
             {
                 RaycastHit hit;
-                if (Physics.Raycast(_mainCamera.ScreenPointToRay(_screenMidPoint), out hit, float.MaxValue, ~_excludedLayers))
+                if (Physics.Raycast(_mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f)), out hit, float.MaxValue, ~_excludedLayers))
                 {
                     _springEnd = hit.point;
                     _hookVisual.gameObject.SetActive(true);
                     State = HookState.Pull;
                 }
             }
+
+            _remainingFuel += dt * FuelBurnRate;
+            _remainingFuel = Mathf.Clamp(_remainingFuel, 0f, FuelTankCapacity);
         }
         else if (State == HookState.Pull)
         {
@@ -66,6 +71,9 @@ public class GrapplingHook
                 State = HookState.Hold;
                 _hookLength = Vector3.Distance(playerPosition, _springEnd);
             }
+
+            _remainingFuel -= dt * FuelBurnRate;
+            _remainingFuel = Mathf.Clamp(_remainingFuel, 0f, FuelTankCapacity);
         }
         else if (State == HookState.Hold)
         {
@@ -77,6 +85,9 @@ public class GrapplingHook
             {
                 State = HookState.Loose;
             }
+
+            _remainingFuel += dt * FuelBurnRate;
+            _remainingFuel = Mathf.Clamp(_remainingFuel, 0f, FuelTankCapacity);
         }
         else if (State == HookState.Loose)
         {
@@ -85,9 +96,12 @@ public class GrapplingHook
                 State = HookState.Hold;
                 _hookLength = Vector3.Distance(playerPosition, _springEnd);
             }
+
+            _remainingFuel += dt * FuelBurnRate;
+            _remainingFuel = Mathf.Clamp(_remainingFuel, 0f, FuelTankCapacity);
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.F) || _remainingFuel <= 0)
         {
             State = HookState.Off;
             _hookVisual.gameObject.SetActive(false);
@@ -127,6 +141,11 @@ public class GrapplingHook
         }
 
         return false;
+    }
+
+    public float GetRemainingFuel()
+    {
+        return _remainingFuel / FuelTankCapacity;
     }
 
     public void Draw()
