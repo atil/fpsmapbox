@@ -15,12 +15,12 @@ public class Ui : MonoBehaviour
 
     private FpsController _controller;
 
-    void Start()
+    private void Start()
     {
         _controller = FindObjectOfType<FpsController>();
     }
 
-    void Update()
+    private void Update()
     {
         if (_controller != null)
         {

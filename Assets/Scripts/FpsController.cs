@@ -7,11 +7,13 @@ using UnityEngine;
 /// </summary>
 public class FpsController : MonoBehaviour
 {
+	// To be displayed in the UI
     public float HookFuel
     {
         get { return _hook.GetRemainingFuel(); }
     }
 
+	// To be displayed in the UI
     public float Speed
     {
         get { return _velocity.magnitude; }
@@ -22,6 +24,7 @@ public class FpsController : MonoBehaviour
     [SerializeField]
     private Transform _camTransform;
 
+	// Used like a weapon slot
     [SerializeField]
     private Transform _hookSlot;
 
