@@ -195,7 +195,7 @@ public class FpsController : MonoBehaviour
             _velocity.y -= Gravity * dt;
         }
 
-        _hook.ApplyHookAcceleration(ref _velocity, _transform.position - Vector3.up * 0.4f);
+        _hook.ApplyHookAcceleration(ref _velocity, _transform, _moveInput);
         _hook.ApplyHookDisplacement(ref _velocity, ref collisionDisplacement, _transform.position - Vector3.up * 0.4f);
 
         var displacement = _velocity * dt;

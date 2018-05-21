@@ -114,21 +114,25 @@ public class GrapplingHook : MonoBehaviour
     }
 
     // Apply simple spring physics
-    public void ApplyHookAcceleration(ref Vector3 playerVelocity, Vector3 playerPosition)
+    public void ApplyHookAcceleration(ref Vector3 playerVelocity, Transform playerTransform, Vector3 moveInput)
     {
         if (State != HookState.Pull)
         {
             return;
         }
 
-        var springDir = (_springEnd - playerPosition).normalized;
+        var springDir = (_springEnd - playerTransform.position).normalized;
         var damping = playerVelocity * DampingCoeff;
 
         // The longer the hook, the stronger the pull
-        var springLength = Vector3.Distance(playerPosition, _springEnd);
+        var springLength = Vector3.Distance(playerTransform.position, _springEnd);
 
         // sqrt(sqrt(x)) feels better than pure linear (which is _the_ spring formula)
         playerVelocity += Mathf.Sqrt(Mathf.Sqrt(springLength)) * SpringTightness * springDir;
+
+        var sideAccel = moveInput.x * 0.8f;
+        playerVelocity += sideAccel * playerTransform.right;
+
         playerVelocity -= damping;
     }
 
