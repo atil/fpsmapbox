@@ -7,26 +7,12 @@ using UnityEngine;
 /// </summary>
 public class FpsController : MonoBehaviour
 {
-	// To be displayed in the UI
-    public float HookFuel
-    {
-        get { return _hook.GetRemainingFuel(); }
-    }
 
-	// To be displayed in the UI
-    public float Speed
-    {
-        get { return _velocity.magnitude; }
-    }
-
+    #region Drag Drop
     // It's better for camera to be a seperate object, not under the controller
     // Since we update the position in FixedUpdate(), it would cause a jittery vision
     [SerializeField]
     private Transform _camTransform;
-
-	// Used like a weapon slot
-    [SerializeField]
-    private Transform _hookSlot;
 
     // Collision resolving is done with respect to these volumes
     // There are more than one
@@ -40,12 +26,17 @@ public class FpsController : MonoBehaviour
     [SerializeField]
     private LayerMask _excludedLayers;
 
-    // Temporary visual for grappling hook
     [SerializeField]
-    private GameObject _hookVisual;
+    private Footsteps _footsteps;
+
+    [SerializeField]
+    private GrapplingHook _hook;
 
     [SerializeField]
     private bool _debugInfo;
+    #endregion
+
+    #region Movement Parameters
 
     // The controller can collide with colliders within this radius
     private const float Radius = 2f;
@@ -62,7 +53,7 @@ public class FpsController : MonoBehaviour
     // Along a dimension, we can't go faster than this
     // This dimension is relative to the controller, not global
     // Meaning that "max speend along X" means "max speed along 'right side' of the controller"
-    private const float MaxSpeedAlongOneDimension = 16f;
+    private const float MaxSpeedAlongOneDimension = 8f;
 
     // How fast the controller decelerates on the grounded
     private const float Friction = 15;
@@ -80,16 +71,29 @@ public class FpsController : MonoBehaviour
     private const float AirControlPrecision = 16f;
 
     // When moving only forward, increase air control dramatically
-    private const float AirControlAdditionForward = 30f;
+    private const float AirControlAdditionForward = 4f;
+    #endregion
+    #region Properties
+    // To be displayed in the UI
+    public float HookFuel
+    {
+        get { return _hook.GetRemainingFuel(); }
+    }
 
+    // To be displayed in the UI
+    public float Speed
+    {
+        get { return _velocity.magnitude; }
+    }
+    #endregion
+
+    #region Fields
     // Caching this always a good practice
+    // EDIT: Not anymore, as Unity caches it for us.
     private Transform _transform;
 
     // A crude way to look around, nothing fancy
     private MouseLook _mouseLook;
-
-    // The code that handles hook related things
-    private GrapplingHook _hook;
 
     // The real velocity of this controller
     private Vector3 _velocity;
@@ -104,14 +108,13 @@ public class FpsController : MonoBehaviour
     private bool _isGroundedInPrevFrame; // ...between frames
     private bool _isGonnaJump; // ...between FixedUpdate() and Update()
     private Vector3 _wishDirDebug; // ...between FixedUpdate() and OnGUI()
+    #endregion
 
     private void Start()
     {
         Application.targetFrameRate = 60; // My laptop is shitty and burn itself to death if not for this
         _transform = transform;
         _mouseLook = new MouseLook(_camTransform);
-
-        _hook = new GrapplingHook(_hookVisual, _hookSlot, _camTransform.GetComponent<Camera>(), _excludedLayers);
     }
 
     // Only for debug drawing
@@ -154,6 +157,8 @@ public class FpsController : MonoBehaviour
 
         Vector3 collisionDisplacement;
         var isGrounded = ResolveCollisions(ref _velocity, out collisionDisplacement);
+
+        _footsteps.ExternalUpdate(_isGonnaJump, isGrounded, isGrounded && !_isGroundedInPrevFrame);
 
         if (isGrounded) // Ground move
         {
@@ -204,6 +209,7 @@ public class FpsController : MonoBehaviour
         _transform.position += displacement;
         _transform.position += collisionDisplacement; // Pushing out of environment
         _isGroundedInPrevFrame = isGrounded;
+
     }
 
     // Input receiving happens here
@@ -225,9 +231,8 @@ public class FpsController : MonoBehaviour
         {
             _isGonnaJump = false;
         }
-        
-        _hook.Update(dt, _transform.position);
 
+        _hook.ExternalUpdate(dt, _transform.position);
         _camTransform.position = Vector3.Lerp(_camTransform.position, _transform.position, dt * 200f);
 
         var mouseLookForward = _mouseLook.Update();
@@ -238,9 +243,8 @@ public class FpsController : MonoBehaviour
         {
             _transform.position = Vector3.zero + Vector3.up * 2f;
             _velocity = Vector3.forward;
-            _hook.Reset();
+            _hook.ResetHook();
         }
-
         _hook.Draw();
     }
 
@@ -359,7 +363,7 @@ public class FpsController : MonoBehaviour
                 {
                     // If the collision pointing up to some degree
                     // then it means we're standing on something
-                    if (Vector3.Dot(collisionNormal, Vector3.up) > 0.5) // TODO: This actually can be bound to a variable
+                    if (Vector3.Dot(collisionNormal, Vector3.up) > 0.5f) // TODO: This actually can be bound to a variable
                     {
                         isGrounded = true;
                     }
