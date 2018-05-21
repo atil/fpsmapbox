@@ -28,15 +28,16 @@ namespace Mapbox.Unity.Location
 		[SerializeField]
 		Transform _targetTransform;
 
-		[SerializeField]
+		//[SerializeField]
 		AbstractMap _map;
 
 		bool _mapInitialized;
 
 #if UNITY_EDITOR
-		protected override void Awake()
+		protected virtual void Start()
 		{
-			_map.OnInitialized += Map_OnInitialized;
+			LocationProviderFactory.Instance.mapManager.OnInitialized += Map_OnInitialized;
+			//_map.OnInitialized += Map_OnInitialized;
 
 			if (_targetTransform == null)
 			{
@@ -49,8 +50,10 @@ namespace Mapbox.Unity.Location
 
 		void Map_OnInitialized()
 		{
-			_map.OnInitialized -= Map_OnInitialized;
+			LocationProviderFactory.Instance.mapManager.OnInitialized -= Map_OnInitialized;
+			//_map.OnInitialized -= Map_OnInitialized;
 			_mapInitialized = true;
+			_map = LocationProviderFactory.Instance.mapManager;
 		}
 
 		Vector2d LatitudeLongitude
@@ -60,9 +63,11 @@ namespace Mapbox.Unity.Location
 				if (_mapInitialized)
 				{
 					var startingLatLong = Conversions.StringToLatLon(_latitudeLongitude);
-					var position = Conversions.GeoToWorldPosition(startingLatLong,
-																 _map.CenterMercator,
-																 _map.WorldRelativeScale).ToVector3xz();
+					var position = Conversions.GeoToWorldPosition(
+						startingLatLong,
+						_map.CenterMercator,
+						_map.WorldRelativeScale
+					).ToVector3xz();
 					position += _targetTransform.position;
 					return position.GetGeoPosition(_map.CenterMercator, _map.WorldRelativeScale);
 				}
@@ -73,12 +78,13 @@ namespace Mapbox.Unity.Location
 
 		protected override void SetLocation()
 		{
-			_currentLocation.Heading = _targetTransform.eulerAngles.y;
+			_currentLocation.UserHeading = _targetTransform.eulerAngles.y;
 			_currentLocation.LatitudeLongitude = LatitudeLongitude;
 			_currentLocation.Accuracy = _accuracy;
 			_currentLocation.Timestamp = UnixTimestampUtils.To(DateTime.UtcNow);
 			_currentLocation.IsLocationUpdated = true;
-			_currentLocation.IsHeadingUpdated = true;
+			_currentLocation.IsUserHeadingUpdated = true;
+			_currentLocation.IsLocationServiceEnabled = true;
 		}
 	}
 }

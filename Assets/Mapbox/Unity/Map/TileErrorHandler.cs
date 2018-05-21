@@ -8,6 +8,7 @@
 	using UnityEngine;
 	using UnityEngine.Events;
 
+
 	/// <summary>
 	/// Monobehavior Script to handle TileErrors. 
 	/// There's an OnTileError event on AbstractMapVisualizer, AbstractTileFactory and UnityTile classes that one can subscribe to to listen to tile errors
@@ -19,15 +20,24 @@
 		private AbstractMap _mapInstance;
 		public TileErrorEvent OnTileError;
 
-		void OnEnable()
+
+		protected virtual void OnEnable()
 		{
 			if (_mapInstance == null)
 			{
 				_mapInstance = GetComponent<AbstractMap>();
 			}
 
+			_mapInstance.OnInitialized += MapInstance_OnInitialized;
+		}
+
+
+		private void MapInstance_OnInitialized()
+		{
+			_mapInstance.OnInitialized -= MapInstance_OnInitialized;
 			_mapInstance.MapVisualizer.OnTileError += _OnTileErrorHandler;
 		}
+
 
 		private void _OnTileErrorHandler(object sender, TileErrorEventArgs e)
 		{
@@ -59,6 +69,7 @@
 			}
 		}
 
+
 		private string printMessage(List<Exception> exceptions, TileErrorEventArgs e)
 		{
 			return string.Format(
@@ -71,11 +82,13 @@
 			);
 		}
 
-		void OnDisable()
+
+		protected virtual void OnDisable()
 		{
 			_mapInstance.MapVisualizer.OnTileError -= _OnTileErrorHandler;
 		}
 	}
+
 
 	[System.Serializable]
 	public class TileErrorEvent : UnityEvent<TileErrorEventArgs> { }

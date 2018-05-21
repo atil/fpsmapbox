@@ -1,4 +1,4 @@
-namespace Mapbox.Unity.MeshGeneration.Factories
+﻿namespace Mapbox.Unity.MeshGeneration.Factories
 {
 	using System.Collections.Generic;
 	using UnityEngine;
@@ -6,6 +6,8 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 	using Mapbox.Unity.MeshGeneration.Data;
 	using Mapbox.Unity.MeshGeneration.Interfaces;
 	using Mapbox.Map;
+	using Mapbox.Unity.Map;
+	using System;
 
 	/// <summary>
 	///	Vector Tile Factory
@@ -21,49 +23,66 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 	/// that layer, it'll be skipped and not processed at all.If all you need is 1-2 layers, it's indeed a big waste to 
 	/// pull whole vector data and you can use 'Style Optimized Vector Tile Factory' to pull only the layer you want to use.
 	/// </summary>
-	[CreateAssetMenu(menuName = "Mapbox/Factories/Vector Tile Factory")]
+	//[CreateAssetMenu(menuName = "Mapbox/Factories/Vector Tile Factory")]
 	public class VectorTileFactory : AbstractTileFactory
 	{
-		[SerializeField]
-		private string _mapId = "mapbox.mapbox-streets-v7";
-
-		[NodeEditorElementAttribute("Layer Visalizers")]
-		public List<LayerVisualizerBase> Visualizers;
-
 		private Dictionary<string, List<LayerVisualizerBase>> _layerBuilder;
 		private Dictionary<UnityTile, VectorTile> _cachedData = new Dictionary<UnityTile, VectorTile>();
-
+		private VectorLayerProperties _properties;
 		public string MapId
 		{
 			get
 			{
-				return _mapId;
+				return _properties.sourceOptions.Id;
 			}
 
 			set
 			{
-				_mapId = value;
+				_properties.sourceOptions.Id = value;
 			}
 		}
+		protected VectorDataFetcher DataFetcher;
 
-		public void OnEnable()
-		{
-			if (Visualizers == null)
-			{
-				Visualizers = new List<LayerVisualizerBase>();
-			}
-		}
-
+		#region AbstractFactoryOverrides
 		/// <summary>
-		/// Sets up the Mesh Factory
+		/// Set up sublayers using VectorLayerVisualizers.
 		/// </summary>
-		/// <param name="fs"></param>
-		internal override void OnInitialized()
+		protected override void OnInitialized()
 		{
 			_layerBuilder = new Dictionary<string, List<LayerVisualizerBase>>();
 			_cachedData.Clear();
-			foreach (LayerVisualizerBase visualizer in Visualizers)
+
+			DataFetcher = ScriptableObject.CreateInstance<VectorDataFetcher>();
+			DataFetcher.DataRecieved += OnVectorDataRecieved;
+			DataFetcher.FetchingError += OnDataError;
+
+			foreach (var item in _properties.locationPrefabList)
 			{
+				LayerVisualizerBase visualizer = CreateInstance<LocationPrefabsLayerVisualizer>();
+				((LocationPrefabsLayerVisualizer)visualizer).SetProperties((PrefabItemOptions)item, _properties.performanceOptions);
+
+				visualizer.Initialize();
+				if (visualizer == null)
+				{
+					continue;
+				}
+
+				if (_layerBuilder.ContainsKey(visualizer.Key))
+				{
+					_layerBuilder[visualizer.Key].Add(visualizer);
+				}
+				else
+				{
+					_layerBuilder.Add(visualizer.Key, new List<LayerVisualizerBase>() { visualizer });
+				}
+			}
+
+			foreach (var sublayer in _properties.vectorSubLayers)
+			{
+				//if its of type prefabitemoptions then separate the visualizer type
+				LayerVisualizerBase visualizer = CreateInstance<VectorLayerVisualizer>();
+				((VectorLayerVisualizer)visualizer).SetProperties(sublayer, _properties.performanceOptions);
+
 				visualizer.Initialize();
 				if (visualizer == null)
 				{
@@ -81,47 +100,25 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 			}
 		}
 
-		internal override void OnRegistered(UnityTile tile)
+		public override void SetOptions(LayerProperties options)
 		{
-			var vectorTile = new VectorTile();
-			tile.AddTile(vectorTile);
+			_properties = (VectorLayerProperties)options;
+		}
 
-
-			vectorTile.Initialize(_fileSource, tile.CanonicalTileId, _mapId, () =>
+		protected override void OnRegistered(UnityTile tile)
+		{
+			if (string.IsNullOrEmpty(MapId) || _properties.sourceOptions.isActive == false || _properties.vectorSubLayers.Count == 0)
 			{
-				if (tile == null)
-				{
-					return;
-				}
-
-				if (vectorTile.HasError)
-				{
-					OnErrorOccurred(new TileErrorEventArgs(tile.CanonicalTileId, vectorTile.GetType(), tile, vectorTile.Exceptions));
-					tile.VectorDataState = TilePropertyState.Error;
-					return;
-				}
-
-				if (_cachedData.ContainsKey(tile))
-				{
-					_cachedData[tile] = vectorTile;
-				}
-				else
-				{
-					_cachedData.Add(tile, vectorTile);
-				}
-
-				// FIXME: we can make the request BEFORE getting a response from these!
-				if (tile.HeightDataState == TilePropertyState.Loading ||
-					tile.RasterDataState == TilePropertyState.Loading)
-				{
-					tile.OnHeightDataChanged += DataChangedHandler;
-					tile.OnRasterDataChanged += DataChangedHandler;
-				}
-				else
-				{
-					CreateMeshes(tile);
-				}
-			});
+				// Do nothing; 
+				Progress++;
+				Progress--;
+			}
+			else
+			{
+				tile.VectorDataState = TilePropertyState.Loading;
+				Progress++;
+				DataFetcher.FetchVector(tile.CanonicalTileId, MapId, tile, _properties.useOptimizedStyle, _properties.optimizedStyle);
+			}
 		}
 
 		/// <summary>
@@ -133,7 +130,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 			base.OnErrorOccurred(e);
 		}
 
-		internal override void OnUnregistered(UnityTile tile)
+		protected override void OnUnregistered(UnityTile tile)
 		{
 			// We are no longer interested in this tile's notifications.
 			tile.OnHeightDataChanged -= DataChangedHandler;
@@ -145,13 +142,62 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 				Progress--;
 				_cachedData.Remove(tile);
 			}
-
-			foreach (var vis in Visualizers)
+			if (_layerBuilder != null)
 			{
-				vis.UnregisterTile(tile);
+				foreach (var layer in _layerBuilder.Values)
+				{
+					foreach (var visualizer in layer)
+					{
+						visualizer.UnregisterTile(tile);
+					}
+				}
+			}
+		}
+		#endregion
+
+
+		#region DataFetcherEvents
+		private void OnVectorDataRecieved(UnityTile tile, VectorTile vectorTile)
+		{
+			Progress--;
+			if (_cachedData.ContainsKey(tile))
+			{
+				_cachedData[tile] = vectorTile;
+			}
+			else
+			{
+				_cachedData.Add(tile, vectorTile);
+			}
+
+			// FIXME: we can make the request BEFORE getting a response from these!
+			if (tile.HeightDataState == TilePropertyState.Loading ||
+					tile.RasterDataState == TilePropertyState.Loading)
+			{
+				tile.OnHeightDataChanged += DataChangedHandler;
+				tile.OnRasterDataChanged += DataChangedHandler;
+			}
+			else
+			{
+				CreateMeshes(tile);
 			}
 		}
 
+		private void OnDataError(UnityTile tile, TileErrorEventArgs e)
+		{
+			if (tile != null)
+			{
+				Progress--;
+				tile.VectorDataState = TilePropertyState.Error;
+			}
+		}
+
+		#endregion
+
+
+		/// <summary>
+		/// Vector Factory runs after Raster&Height data recieved and processed
+		/// </summary>
+		/// <param name="t"></param>
 		private void DataChangedHandler(UnityTile t)
 		{
 			if (t.RasterDataState != TilePropertyState.Loading &&
@@ -165,7 +211,6 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 		/// Fetches the vector data and passes each layer to relevant layer visualizers
 		/// </summary>
 		/// <param name="tile"></param>
-		/// <param name="e"></param>
 		private void CreateMeshes(UnityTile tile)
 		{
 			tile.OnHeightDataChanged -= DataChangedHandler;
@@ -186,6 +231,21 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 							Progress++;
 							builder.Create(_cachedData[tile].Data.GetLayer(layerName), tile, DecreaseProgressCounter);
 						}
+					}
+				}
+			}
+
+			//emptylayer for visualizers that don't depend on outside data sources
+			string emptyLayer = "";
+			if (_layerBuilder.ContainsKey(emptyLayer))
+			{
+				foreach (var builder in _layerBuilder[emptyLayer])
+				{
+					if (builder.Active)
+					{
+						Progress++;
+						//just pass the first available layer - we should create a static null layer for this
+						builder.Create(_cachedData[tile].Data.GetLayer(_cachedData[tile].Data.LayerNames()[0]), tile, DecreaseProgressCounter);
 					}
 				}
 			}

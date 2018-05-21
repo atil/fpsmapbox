@@ -38,9 +38,8 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 	[CreateAssetMenu(menuName = "Mapbox/Modifiers/Modifier Stack")]
 	public class ModifierStack : ModifierStackBase
 	{
-		[SerializeField] private PositionTargetType _moveFeaturePositionTo;
-		[NodeEditorElement("Mesh Modifiers")] public List<MeshModifier> MeshModifiers;
-		[NodeEditorElement("Game Object Modifiers")] public List<GameObjectModifier> GoModifiers;
+		[SerializeField] public PositionTargetType moveFeaturePositionTo;
+
 
 		[NonSerialized] private int vertexIndex = 1;
 		[NonSerialized] private Dictionary<UnityTile, List<VectorEntity>> _activeObjects;
@@ -52,7 +51,7 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 
 		[NonSerialized] private int _counter;
 		[NonSerialized] private int _secondCounter;
-		private void OnEnable()
+		protected virtual void OnEnable()
 		{
 			_pool = new ObjectPool<VectorEntity>(() =>
 			{
@@ -84,7 +83,10 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 					{
 						item.OnPoolItem(_activeObjects[tile][i]);
 					}
-					_activeObjects[tile][i].GameObject.SetActive(false);
+					if (null != _activeObjects[tile][i].GameObject)
+					{
+						_activeObjects[tile][i].GameObject.SetActive(false);
+					}
 					_pool.Put(_activeObjects[tile][i]);
 				}
 				_activeObjects[tile].Clear();
@@ -118,14 +120,14 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 			_counter = feature.Points.Count;
 			_secondCounter = 0;
 
-			if (_moveFeaturePositionTo != PositionTargetType.TileCenter)
+			if (moveFeaturePositionTo != PositionTargetType.TileCenter)
 			{
 				_tempPoint = Constants.Math.Vector3Zero;
-				if (_moveFeaturePositionTo == PositionTargetType.FirstVertex)
+				if (moveFeaturePositionTo == PositionTargetType.FirstVertex)
 				{
 					_tempPoint = feature.Points[0][0];
 				}
-				else if (_moveFeaturePositionTo == PositionTargetType.CenterOfVertices)
+				else if (moveFeaturePositionTo == PositionTargetType.CenterOfVertices)
 				{
 					//this is not precisely the center because of the duplicates  (first/last vertex) but close to center
 					_tempPoint = feature.Points[0][0];
@@ -179,14 +181,22 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 			_tempVectorEntity.Feature = feature;
 
 #if UNITY_EDITOR
-			_tempVectorEntity.GameObject.name = type + " - " + feature.Data.Id;
+			if (feature.Data != null)
+			{
+				_tempVectorEntity.GameObject.name = type + " - " + feature.Data.Id;
+			}
+			else
+			{
+				_tempVectorEntity.GameObject.name = type;
+			}
 #endif
 			_tempVectorEntity.Mesh.subMeshCount = meshData.Triangles.Count;
 			_tempVectorEntity.Mesh.SetVertices(meshData.Vertices);
 			_tempVectorEntity.Mesh.SetNormals(meshData.Normals);
 			if (meshData.Tangents.Count > 0)
+			{
 				_tempVectorEntity.Mesh.SetTangents(meshData.Tangents);
-
+			}
 
 			_counter = meshData.Triangles.Count;
 			for (int i = 0; i < _counter; i++)
