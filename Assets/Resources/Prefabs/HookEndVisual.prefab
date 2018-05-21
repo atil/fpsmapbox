@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4295566435115984}
   - component: {fileID: 33407013370574220}
   - component: {fileID: 23800243637668718}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: HookEndVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
