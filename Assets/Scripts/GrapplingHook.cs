@@ -35,9 +35,11 @@ public class GrapplingHook : MonoBehaviour
     private Transform _hookSlot;
     [SerializeField]
     private GameObject _hookPrefab;
+    [SerializeField]
+    private GameObject _hookEndPrefab;
 
     private Transform _hookVisual;
-    private Vector3 _springEnd;
+    private Transform _hookEnd;
     private float _hookLength;
     private float _remainingFuel;
 
@@ -45,6 +47,10 @@ public class GrapplingHook : MonoBehaviour
     {
         _hookVisual = Instantiate(_hookPrefab).transform;
         _hookVisual.gameObject.SetActive(false);
+
+        _hookEnd = Instantiate(_hookEndPrefab).transform;
+        _hookEnd.gameObject.SetActive(false);
+
         State = HookState.Off;
     }
 
@@ -58,8 +64,9 @@ public class GrapplingHook : MonoBehaviour
                 RaycastHit hit;
                 if (Physics.Raycast(_mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f)), out hit, float.MaxValue, ~_excludedLayers))
                 {
-                    _springEnd = hit.point;
+                    _hookEnd.position = hit.point;
                     _hookVisual.gameObject.SetActive(true);
+                    _hookEnd.gameObject.SetActive(true);
                     State = HookState.Pull;
                 }
             }
@@ -72,7 +79,7 @@ public class GrapplingHook : MonoBehaviour
             if (Input.GetMouseButtonUp(0))
             {
                 State = HookState.Hold;
-                _hookLength = Vector3.Distance(playerPosition, _springEnd);
+                _hookLength = Vector3.Distance(playerPosition, _hookEnd.position);
             }
 
             AdjustFuel(-dt);
@@ -99,7 +106,7 @@ public class GrapplingHook : MonoBehaviour
             if (Input.GetMouseButtonUp(1))
             {
                 State = HookState.Hold;
-                _hookLength = Vector3.Distance(playerPosition, _springEnd);
+                _hookLength = Vector3.Distance(playerPosition, _hookEnd.position);
             }
 
             AdjustFuel(dt);
@@ -110,6 +117,7 @@ public class GrapplingHook : MonoBehaviour
         {
             State = HookState.Off;
             _hookVisual.gameObject.SetActive(false);
+            _hookEnd.gameObject.SetActive(false);
         }
     }
 
@@ -121,11 +129,11 @@ public class GrapplingHook : MonoBehaviour
             return;
         }
 
-        var springDir = (_springEnd - playerTransform.position).normalized;
+        var springDir = (_hookEnd.position - playerTransform.position).normalized;
         var damping = playerVelocity * DampingCoeff;
 
         // The longer the hook, the stronger the pull
-        var springLength = Vector3.Distance(playerTransform.position, _springEnd);
+        var springLength = Vector3.Distance(playerTransform.position, _hookEnd.position);
 
         // sqrt(sqrt(x)) feels better than pure linear (which is _the_ spring formula)
         playerVelocity += Mathf.Sqrt(Mathf.Sqrt(springLength)) * SpringTightness * springDir;
@@ -144,11 +152,11 @@ public class GrapplingHook : MonoBehaviour
             return false;
         }
 
-        var distance = Vector3.Distance(playerPosition, _springEnd);
+        var distance = Vector3.Distance(playerPosition, _hookEnd.position);
         if (distance > _hookLength)
         {
             // The player will have no velocity component in the hook's direction
-            var playerToEndDir = (_springEnd - playerPosition).normalized;
+            var playerToEndDir = (_hookEnd.position - playerPosition).normalized;
             playerVelocity -= Vector3.Project(playerVelocity, playerToEndDir);
 
             displacement = playerToEndDir * (distance - _hookLength);
@@ -175,9 +183,9 @@ public class GrapplingHook : MonoBehaviour
     // Mess with the poor cube's transform to make it look good
     public void Draw()
     {
-        _hookVisual.transform.position = (_springEnd + _hookSlot.position) / 2f;
-        _hookVisual.transform.rotation = Quaternion.LookRotation(_springEnd - _hookSlot.position);
-        _hookVisual.transform.localScale = new Vector3(0.1f, 0.1f, Vector3.Distance(_springEnd, _hookSlot.position));
+        _hookVisual.transform.position = (_hookEnd.position + _hookSlot.position) / 2f;
+        _hookVisual.transform.rotation = Quaternion.LookRotation(_hookEnd.position - _hookSlot.position);
+        _hookVisual.transform.localScale = new Vector3(0.1f, 0.1f, Vector3.Distance(_hookEnd.position, _hookSlot.position));
     }
 
     public void ResetHook()

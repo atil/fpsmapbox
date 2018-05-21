@@ -408,6 +408,8 @@ MonoBehaviour:
   _hookSlot: {fileID: 775449331}
   _hookPrefab: {fileID: 1226400764845670, guid: 98402a3f541d6e94085b8c79ea943832,
     type: 2}
+  _hookEndPrefab: {fileID: 1858973505023814, guid: 73e1e3bdba5a13a44a37600a272b47aa,
+    type: 2}
 --- !u!114 &577145844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -879,7 +881,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1235558829}
   - component: {fileID: 1235558828}
-  - component: {fileID: 1235558827}
   - component: {fileID: 1235558826}
   - component: {fileID: 1235558825}
   - component: {fileID: 1235558824}
@@ -920,13 +921,6 @@ AudioListener:
   m_GameObject: {fileID: 1235558823}
   m_Enabled: 1
 --- !u!124 &1235558826
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1235558823}
-  m_Enabled: 1
---- !u!92 &1235558827
 Behaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
