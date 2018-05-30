@@ -33,6 +33,9 @@ public class FpsController : MonoBehaviour
     private GrapplingHook _hook;
 
     [SerializeField]
+    private CameraFov _fov;
+
+    [SerializeField]
     private bool _debugInfo;
     #endregion
 
@@ -81,7 +84,7 @@ public class FpsController : MonoBehaviour
     }
 
     // To be displayed in the UI
-    public float Speed
+    public float Velocity
     {
         get { return _velocity.magnitude; }
     }
@@ -237,6 +240,8 @@ public class FpsController : MonoBehaviour
 
         var mouseLookForward = _mouseLook.Update();
         _transform.rotation = Quaternion.LookRotation(mouseLookForward.WithY(0), Vector3.up); // Only rotate vertically
+
+        _fov.ExternalUpdate(_velocity);
 
         // Reset player -- makes testing much easier
         if (Input.GetKeyDown(KeyCode.R))

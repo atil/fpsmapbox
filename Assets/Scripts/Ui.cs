@@ -24,7 +24,7 @@ public class Ui : MonoBehaviour
     {
         if (_controller != null)
         {
-            _speedText.text = _controller.Speed.ToString("F1");
+            _speedText.text = _controller.Velocity.ToString("F1");
             _hookFuelIndicator.localScale = Vector3.one.WithX(_controller.HookFuel);
         }
     }

@@ -171,6 +171,7 @@ GameObject:
   - component: {fileID: 577145840}
   - component: {fileID: 577145839}
   - component: {fileID: 577145844}
+  - component: {fileID: 577145845}
   - component: {fileID: 577145843}
   - component: {fileID: 577145842}
   m_Layer: 0
@@ -201,6 +202,7 @@ MonoBehaviour:
     m_Bits: 768
   _footsteps: {fileID: 577145844}
   _hook: {fileID: 577145843}
+  _fov: {fileID: 577145845}
   _debugInfo: 0
 --- !u!23 &577145840
 MeshRenderer:
@@ -360,6 +362,36 @@ MonoBehaviour:
   _stepClips: []
   _jumpClip: {fileID: 0}
   _landClip: {fileID: 0}
+--- !u!114 &577145845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 577145838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 614c0f3236c207348af24a35b6489873, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _camera: {fileID: 1235558828}
+  _curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 1
+      value: 1
+      inSlope: 3.260485
+      outSlope: 3.260485
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
 --- !u!1 &742133609
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,7 +719,7 @@ Prefab:
     - target: {fileID: 114196496685157712, guid: 5bb46bae81bf04608ac699be504c5e66,
         type: 2}
       propertyPath: _vectorData._layerProperty.performanceOptions.entityPerCoroutine
-      value: 10
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5bb46bae81bf04608ac699be504c5e66, type: 2}
