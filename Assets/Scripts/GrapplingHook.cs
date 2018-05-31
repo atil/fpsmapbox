@@ -8,6 +8,7 @@ public enum HookState
 {
     None,
     Off,
+    Shooting,
     Pull,
     Hold,
     Loose
@@ -16,7 +17,10 @@ public enum HookState
 public class GrapplingHook : MonoBehaviour
 {
     // How strong the spring will feel
-    private const float HookForce = 1f;
+    private const float HookPullForce = 1f;
+
+    // How fast the hook travels when we launch it
+    private const float HookShootSpeed = 320f;
 
     // The higher this number is, the quicker the spring will come to rest
     private const float DampingCoeff = 0.01f;
@@ -40,6 +44,7 @@ public class GrapplingHook : MonoBehaviour
 
     private Transform _hookVisual;
     private Transform _hookEnd;
+    private Vector3 _hookTargetOnTheWall;
     private float _hookLength;
     private float _remainingFuel;
 
@@ -58,25 +63,43 @@ public class GrapplingHook : MonoBehaviour
     {
         if (State == HookState.Off)
         {
-            // Transition: Off -> Pull
+            // Transition: Off -> Shooting
             if (Input.GetMouseButtonDown(0))
             {
                 RaycastHit hit;
                 if (Physics.Raycast(_mainCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f)), out hit, float.MaxValue, ~_excludedLayers))
                 {
-                    _hookEnd.position = hit.point;
+                    _hookEnd.position = _hookSlot.position;
+                    _hookTargetOnTheWall = hit.point;
                     _hookVisual.gameObject.SetActive(true);
                     _hookEnd.gameObject.SetActive(true);
-                    State = HookState.Pull;
+                    State = HookState.Shooting;
                 }
             }
 
             AdjustFuel(dt);
         }
+        else if (State == HookState.Shooting)
+        {
+            // Keep going until the target on the wall
+            // unless we're gonna reach it in the next frame
+            var dx = HookShootSpeed * dt;
+            if (Vector3.Distance(_hookEnd.position, _hookTargetOnTheWall) > dx)
+            {
+                _hookEnd.position = _hookEnd.position + (_hookTargetOnTheWall - _hookEnd.position).normalized * dx;
+            }
+            else
+            {
+                // Transition: Shooting -> Pull
+                _hookEnd.position = _hookTargetOnTheWall;
+                State = HookState.Pull;
+            }
+
+        }
         else if (State == HookState.Pull)
         {
             // Transition: Pull -> Hold
-            if (Input.GetMouseButtonUp(0))
+            if (!Input.GetMouseButton(0))
             {
                 State = HookState.Hold;
                 _hookLength = Vector3.Distance(playerPosition, _hookEnd.position);
@@ -132,7 +155,7 @@ public class GrapplingHook : MonoBehaviour
         var springDir = (_hookEnd.position - playerTransform.position).normalized;
         var damping = playerVelocity * DampingCoeff;
 
-        playerVelocity += HookForce * springDir;
+        playerVelocity += HookPullForce * springDir;
 
         var sideAccel = moveInput.x * 0.8f;
         playerVelocity += sideAccel * playerTransform.right;
@@ -180,8 +203,12 @@ public class GrapplingHook : MonoBehaviour
     public void Draw()
     {
         _hookVisual.transform.position = (_hookEnd.position + _hookSlot.position) / 2f;
-        _hookVisual.transform.rotation = Quaternion.LookRotation(_hookEnd.position - _hookSlot.position);
         _hookVisual.transform.localScale = new Vector3(0.1f, 0.1f, Vector3.Distance(_hookEnd.position, _hookSlot.position));
+
+        if (Vector3.Distance(_hookEnd.position, _hookSlot.position) > 0.1f)
+        {
+            _hookVisual.transform.rotation = Quaternion.LookRotation(_hookEnd.position - _hookSlot.position);
+        }
     }
 
     public void ResetHook()
