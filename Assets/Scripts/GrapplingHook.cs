@@ -16,7 +16,7 @@ public enum HookState
 public class GrapplingHook : MonoBehaviour
 {
     // How strong the spring will feel
-    private const float SpringTightness = 0.5f;
+    private const float HookForce = 1f;
 
     // The higher this number is, the quicker the spring will come to rest
     private const float DampingCoeff = 0.01f;
@@ -132,11 +132,7 @@ public class GrapplingHook : MonoBehaviour
         var springDir = (_hookEnd.position - playerTransform.position).normalized;
         var damping = playerVelocity * DampingCoeff;
 
-        // The longer the hook, the stronger the pull
-        var springLength = Vector3.Distance(playerTransform.position, _hookEnd.position);
-
-        // sqrt(sqrt(x)) feels better than pure linear (which is _the_ spring formula)
-        playerVelocity += Mathf.Sqrt(Mathf.Sqrt(springLength)) * SpringTightness * springDir;
+        playerVelocity += HookForce * springDir;
 
         var sideAccel = moveInput.x * 0.8f;
         playerVelocity += sideAccel * playerTransform.right;
