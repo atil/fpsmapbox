@@ -314,7 +314,7 @@
 
 		protected void Build(VectorFeatureUnity feature, UnityTile tile, GameObject parent)
 		{
-			if (feature.Properties.ContainsKey("extrude") && !Convert.ToBoolean(feature.Properties["extrude"]))
+			if (feature.Extrude)
 				return;
 
 			if (feature.Points.Count < 1)
@@ -356,7 +356,7 @@
 			//TODO: Come back to this.
 			//var size = _layerProperties.coreOptions.propertyValuePairs.Count;
 			//for (int i = 0; i < size; i++)
-			//{
+			//
 			//	var key = _layerProperties.coreOptions.propertyValuePairs[i].featureKey;
 			//	if (feature.Properties.ContainsKey(key))
 			//	{

@@ -10,6 +10,7 @@ namespace Mapbox.Unity.MeshGeneration.Data
 		public VectorTileFeature Data;
 		public Dictionary<string, object> Properties;
 		public List<List<Vector3>> Points = new List<List<Vector3>>();
+	    public readonly bool Extrude;
 
 		private double _rectSizex;
 		private double _rectSizey;
@@ -28,6 +29,7 @@ namespace Mapbox.Unity.MeshGeneration.Data
 			Data = feature;
 			Properties = Data.GetProperties();
 			Points.Clear();
+		    Extrude = Properties.ContainsKey("extrude") && !System.Convert.ToBoolean(Properties["extrude"]);
 
 			//this is a temp hack until we figure out how streets ids works
 			if (buildingsWithUniqueIds == true) //ids from building dataset is big ulongs 
