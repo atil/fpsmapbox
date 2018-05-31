@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Mapbox.Unity.MeshGeneration.Modifiers
 {
 	using System.Collections.Generic;
@@ -104,13 +106,15 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 			if (_options.extrusionGeometryType != ExtrusionGeometryType.RoofOnly)
 			{
 				_counter = md.Edges.Count;
-				var wallTri = new List<int>(_counter * 3);
-				var wallUv = new List<Vector2>(_counter * 2);
+			    var wallTriArray = new int[_counter * 3];
+                var wallUvArray = new Vector2[_counter * 2];
 				Vector3 norm = Constants.Math.Vector3Zero;
 
 				md.Vertices.Capacity = md.Vertices.Count + _counter * 2;
 				md.Normals.Capacity = md.Normals.Count + _counter * 2;
 
+			    int uvIndex = 0;
+			    int triIndex = 0;
 				for (int i = 0; i < _counter; i += 2)
 				{
 					v1 = md.Vertices[md.Edges[i]];
@@ -135,31 +139,31 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 					md.Tangents.Add(wallDir);
 					md.Tangents.Add(wallDir);
 
-					wallUv.Add(new Vector2(0, 0));
-					wallUv.Add(new Vector2(d, 0));
-					wallUv.Add(new Vector2(0, -height));
-					wallUv.Add(new Vector2(d, -height));
+					wallUvArray[uvIndex++] = new Vector2(0, 0);
+					wallUvArray[uvIndex++] = new Vector2(d, 0);
+					wallUvArray[uvIndex++] = new Vector2(0, -height);
+					wallUvArray[uvIndex++] = new Vector2(d, -height);
 
-					wallTri.Add(ind);
-					wallTri.Add(ind + 1);
-					wallTri.Add(ind + 2);
+					wallTriArray[triIndex++] = ind;
+					wallTriArray[triIndex++] = ind + 1;
+					wallTriArray[triIndex++] = ind + 2;
 
-					wallTri.Add(ind + 1);
-					wallTri.Add(ind + 3);
-					wallTri.Add(ind + 2);
+					wallTriArray[triIndex++] = ind + 1;
+					wallTriArray[triIndex++] = ind + 3;
+					wallTriArray[triIndex++] = ind + 2;
 				}
 
 				// TODO: Do we really need this?
 				if (_separateSubmesh)
 				{
-					md.Triangles.Add(wallTri);
+					md.Triangles.Add(wallTriArray.ToList());
 				}
 				else
 				{
-					md.Triangles.Capacity = md.Triangles.Count + wallTri.Count;
-					md.Triangles[0].AddRange(wallTri);
+					md.Triangles.Capacity = md.Triangles.Count + wallTriArray.Length;
+					md.Triangles[0].AddRange(wallTriArray);
 				}
-				md.UV[0].AddRange(wallUv);
+				md.UV[0].AddRange(wallUvArray);
 			}
 		}
 
