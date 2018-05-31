@@ -220,6 +220,7 @@ public class FpsController : MonoBehaviour
     private void Update()
     {
         Cursor.lockState = CursorLockMode.Locked; // Keep doing this. We don't want cursor anywhere just yet
+        Cursor.visible = false;
 
         var dt = Time.deltaTime;
 
