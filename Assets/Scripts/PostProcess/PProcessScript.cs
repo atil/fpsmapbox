@@ -5,17 +5,18 @@ using UnityEngine.UI;
 [ExecuteInEditMode]
 public class PProcessScript : MonoBehaviour
 {
+    enum DownSampleMode { Off, Half, Quarter }
+
+
     private Camera _camera;
     private Material _edgeDetectMaterial;
     private Material _gaussianBlurMaterial;
     private Material _blendMaterial;
-    private RenderTexture _sourceTexture;
-
-    public bool UseRenderImage;
-    public float off;
 
     #region EdgeDetection
     public float angleThreshold = 80, depthWeight = 300;
+    [SerializeField, Range(0, 8)] private int _kernelRadius = 1;
+    [SerializeField, Range(0.5f, 2)] private float _texelSizeDivider = 2;
     [SerializeField] private Shader _edgeDetectShader;
     [SerializeField] private Shader _blendShader;
     [SerializeField] private Color _edgeColor;
@@ -23,8 +24,8 @@ public class PProcessScript : MonoBehaviour
 
     #region GaussianBlur
     [SerializeField] private Shader _blurShader;
+    [SerializeField] private DownSampleMode _downSampleMode = DownSampleMode.Quarter;
     [SerializeField, Range(0, 8)] private int _iteration = 4;
-    [SerializeField, Range(0.0f,1.0f)] private float blurSpread = 0.6f;
     #endregion
 
     // Creates a private material used to the effect
@@ -35,28 +36,20 @@ public class PProcessScript : MonoBehaviour
         _gaussianBlurMaterial = new Material(_blurShader);
         _blendMaterial = new Material(_blendShader);
         _camera.depthTextureMode = DepthTextureMode.DepthNormals;
-       
     }
 
     // Postprocess the image
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        if (UseRenderImage)
-        {
-            RenderTexture rt1 = RenderTexture.GetTemporary(source.width, source.height);
+        RenderTexture rt1 = RenderTexture.GetTemporary(source.width, source.height);
 
-            EdgeDetectionPass(source, destination);
-            //BlurPass(rt1, destination);
+        EdgeDetectionPass(source, rt1);
+        BlurPass(rt1, destination);
 
-            Graphics.Blit(source, destination, _blendMaterial);
-            Graphics.Blit(rt1, destination, _blendMaterial);
+        Graphics.Blit(source, destination, _blendMaterial);
+        Graphics.Blit(rt1, destination, _blendMaterial);
 
-            RenderTexture.ReleaseTemporary(rt1);
-        }
-        else
-        {
-            Graphics.Blit(source, destination);
-        }
+        RenderTexture.ReleaseTemporary(rt1);
     }
 
     void EdgeDetectionPass(RenderTexture source, RenderTexture destination)
@@ -64,55 +57,43 @@ public class PProcessScript : MonoBehaviour
         _edgeDetectMaterial.SetColor("_EdgeColor", _edgeColor);
         _edgeDetectMaterial.SetFloat("_angleThreshold", angleThreshold);
         _edgeDetectMaterial.SetFloat("_depthWeight", depthWeight);
-        Graphics.BlitMultiTap(source, destination, _edgeDetectMaterial,
-                                                    new Vector2(-off, -off),
-                                                    new Vector2(-off, off),
-                                                    new Vector2(off, off),
-                                                    new Vector2(off, -off));
+        _edgeDetectMaterial.SetInt("_kernelRadius", _kernelRadius);
+        _edgeDetectMaterial.SetFloat("_texelSizeDivider", _texelSizeDivider);
+        Graphics.Blit(source, destination, _edgeDetectMaterial);
     }
 
-    // Performs one blur iteration.
-    public void FourTapCone(RenderTexture source, RenderTexture dest, int iteration)
-    {
-        float off = 0.5f + iteration * blurSpread;
-        Graphics.BlitMultiTap(source, dest, _gaussianBlurMaterial,
-                               new Vector2(-off, -off),
-                               new Vector2(-off, off),
-                               new Vector2(off, off),
-                               new Vector2(off, -off)
-            );
-    }
-
-    // Downsamples the texture to a quarter resolution.
-    private void DownSample4x(RenderTexture source, RenderTexture dest)
-    {
-        float off = 1.0f;
-        Graphics.BlitMultiTap(source, dest, _gaussianBlurMaterial,
-                               new Vector2(-off, -off),
-                               new Vector2(-off, off),
-                               new Vector2(off, off),
-                               new Vector2(off, -off)
-            );
-    }
     void BlurPass(RenderTexture source, RenderTexture destination)
     {
-            int rtW = source.width/4;
-            int rtH = source.height/4;
-            RenderTexture buffer = RenderTexture.GetTemporary(rtW, rtH, 0);
+        RenderTexture rt1, rt2;
 
-            // Copy source to the 4x4 smaller texture.
-            DownSample4x (source, buffer);
+        if (_downSampleMode == DownSampleMode.Half)
+        {
+            rt1 = RenderTexture.GetTemporary(source.width / 2, source.height / 2);
+            rt2 = RenderTexture.GetTemporary(source.width / 2, source.height / 2);
+            Graphics.Blit(source, rt1);
+        }
+        else if (_downSampleMode == DownSampleMode.Quarter)
+        {
+            rt1 = RenderTexture.GetTemporary(source.width / 4, source.height / 4);
+            rt2 = RenderTexture.GetTemporary(source.width / 4, source.height / 4);
+            Graphics.Blit(source, rt1, _gaussianBlurMaterial, 0);
+        }
+        else
+        {
+            rt1 = RenderTexture.GetTemporary(source.width, source.height);
+            rt2 = RenderTexture.GetTemporary(source.width, source.height);
+            Graphics.Blit(source, rt1);
+        }
 
-            // Blur the small texture
-            for(int i = 0; i < _iteration; i++)
-            {
-                RenderTexture buffer2 = RenderTexture.GetTemporary(rtW, rtH, 0);
-                FourTapCone (buffer, buffer2, i);
-                RenderTexture.ReleaseTemporary(buffer);
-                buffer = buffer2;
-            }
-            Graphics.Blit(buffer, destination);
+        for (var i = 0; i < _iteration; i++)
+        {
+            Graphics.Blit(rt1, rt2, _gaussianBlurMaterial, 1);
+            Graphics.Blit(rt2, rt1, _gaussianBlurMaterial, 2);
+        }
 
-            RenderTexture.ReleaseTemporary(buffer);
+        Graphics.Blit(rt1, destination);
+
+        RenderTexture.ReleaseTemporary(rt1);
+        RenderTexture.ReleaseTemporary(rt2);
     }
 }

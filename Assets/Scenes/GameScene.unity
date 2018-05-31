@@ -446,7 +446,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 0
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -669,7 +669,7 @@ Prefab:
     - target: {fileID: 114196496685157712, guid: 5bb46bae81bf04608ac699be504c5e66,
         type: 2}
       propertyPath: _vectorData._layerProperty.vectorSubLayers.Array.data[0].materialOptions.texturingType
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114196496685157712, guid: 5bb46bae81bf04608ac699be504c5e66,
         type: 2}
@@ -690,7 +690,7 @@ Prefab:
         type: 2}
       propertyPath: _vectorData._layerProperty.vectorSubLayers.Array.data[0].materialOptions.materials.Array.data[1].Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 55cc6edead802446b9106b2998406844, type: 2}
+      objectReference: {fileID: 2100000, guid: b0c8e5e75f6c0f34ebe79bc419513773, type: 2}
     - target: {fileID: 114196496685157712, guid: 5bb46bae81bf04608ac699be504c5e66,
         type: 2}
       propertyPath: _vectorData._layerProperty.vectorSubLayers.Array.data[0].coreOptions.groupFeatures
@@ -720,6 +720,21 @@ Prefab:
         type: 2}
       propertyPath: _vectorData._layerProperty.performanceOptions.entityPerCoroutine
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 114196496685157712, guid: 5bb46bae81bf04608ac699be504c5e66,
+        type: 2}
+      propertyPath: _terrain._layerProperty.sourceType
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114196496685157712, guid: 5bb46bae81bf04608ac699be504c5e66,
+        type: 2}
+      propertyPath: _terrain._layerProperty.sourceOptions.layerSource.Id
+      value: mapbox.terrain-rgb
+      objectReference: {fileID: 0}
+    - target: {fileID: 114196496685157712, guid: 5bb46bae81bf04608ac699be504c5e66,
+        type: 2}
+      propertyPath: _terrain._layerProperty.elevationLayerType
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5bb46bae81bf04608ac699be504c5e66, type: 2}
@@ -900,16 +915,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 185f747be746445448d155fc85d601b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UseRenderImage: 1
-  off: 0.7
   angleThreshold: 80
   depthWeight: 80
+  _kernelRadius: 1
+  _texelSizeDivider: 2
   _edgeDetectShader: {fileID: 4800000, guid: 3e24831ed036d434b94f00ca4f9ce98d, type: 3}
   _blendShader: {fileID: 4800000, guid: c7117cbaa097ddb4084f39707c05ee38, type: 3}
   _edgeColor: {r: 0.7372549, g: 0.94509804, b: 1, a: 1}
   _blurShader: {fileID: 4800000, guid: 0d76784124b05ac48885173d671af591, type: 3}
+  _downSampleMode: 2
   _iteration: 0
-  blurSpread: 1
 --- !u!81 &1235558825
 AudioListener:
   m_ObjectHideFlags: 0
@@ -948,7 +963,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294966783
+    m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
