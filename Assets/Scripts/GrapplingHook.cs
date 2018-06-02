@@ -25,6 +25,10 @@ public class GrapplingHook : MonoBehaviour
     // The higher this number is, the quicker the spring will come to rest
     private const float DampingCoeff = 0.01f;
 
+    // Acceleration on side input is stronger when pulling
+    private const float SideAccelPull = 0.8f;
+    private const float SideAccelHold = 0.1f;
+
     private const float FuelTankCapacity = 3f;
 
     private const float FuelBurnRate = 1f;
@@ -144,23 +148,29 @@ public class GrapplingHook : MonoBehaviour
         }
     }
 
-    // Apply simple spring physics
+    // Apply hook pulling physics
     public void ApplyHookAcceleration(ref Vector3 playerVelocity, Transform playerTransform, Vector3 moveInput)
     {
-        if (State != HookState.Pull)
+        if (State != HookState.Pull && State != HookState.Hold)
         {
             return;
         }
 
-        var springDir = (_hookEnd.position - playerTransform.position).normalized;
-        var damping = playerVelocity * DampingCoeff;
-
-        playerVelocity += HookPullForce * springDir;
-
-        var sideAccel = moveInput.x * 0.8f;
+        // Side acceleration
+        // On A-D input, we accelerate in that direction
+        // Way stronger when pulling
+        var coeff = State == HookState.Pull ? SideAccelPull : SideAccelHold;
+        var sideAccel = moveInput.x * coeff;
         playerVelocity += sideAccel * playerTransform.right;
 
-        playerVelocity -= damping;
+        if (State == HookState.Pull)
+        {
+            var springDir = (_hookEnd.position - playerTransform.position).normalized;
+            var damping = playerVelocity * DampingCoeff;
+
+            playerVelocity += HookPullForce * springDir;
+            playerVelocity -= damping;
+        }
     }
 
     // Prevent it going further than the length of the hook
