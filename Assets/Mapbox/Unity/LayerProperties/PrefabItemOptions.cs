@@ -16,7 +16,7 @@ namespace Mapbox.Unity.Map
 		public readonly VectorPrimitiveType primitiveType = VectorPrimitiveType.Point;
 
 		//Group features turned off
-		public readonly bool groupFeatures = false;
+		public readonly bool combineMeshes = false;
 
 		//No extrusion
 		public readonly ExtrusionType extrusionType = ExtrusionType.None;
@@ -142,7 +142,17 @@ namespace Mapbox.Unity.Map
 				spawnPrefabOptions.AllPrefabsInstatiated = value;
 			}
 		}
-
 		#endregion
+
+		public override bool HasChanged
+		{
+			set
+			{
+				if (value == true)
+				{
+					OnPropertyHasChanged(new VectorLayerUpdateArgs { property = this });
+				}
+			}
+		}
 	}
 }

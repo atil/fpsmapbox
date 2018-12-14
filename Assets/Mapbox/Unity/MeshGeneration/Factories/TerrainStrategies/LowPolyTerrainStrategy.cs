@@ -4,6 +4,7 @@ using Mapbox.Unity.MeshGeneration.Data;
 using Mapbox.Unity.Map;
 using Mapbox.Map;
 using Mapbox.Utils;
+using UnityEngine.Rendering;
 
 namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 {
@@ -46,22 +47,12 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 			{
 				tile.gameObject.layer = _elevationOptions.unityLayerOptions.layerId;
 			}
-
-			if (tile.MeshRenderer == null)
+			if ((int)tile.ElevationType != (int)ElevationLayerType.LowPolygonTerrain ||
+			    tile.MeshFilter.mesh.vertexCount != RequiredVertexCount)
 			{
-				var renderer = tile.gameObject.AddComponent<MeshRenderer>();
-				renderer.material = _elevationOptions.requiredOptions.baseMaterial;
-			}
-
-			if (tile.MeshFilter == null)
-			{
-				tile.gameObject.AddComponent<MeshFilter>();
+				tile.MeshFilter.mesh.Clear();
 				CreateBaseMesh(tile);
-			}
-
-			if (_elevationOptions.requiredOptions.addCollider && tile.Collider == null)
-			{
-				tile.gameObject.AddComponent<MeshCollider>();
+				tile.ElevationType = TileTerrainType.LowPoly;
 			}
 
 			GenerateTerrainMesh(tile);
@@ -123,6 +114,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 
 
 			var mesh = tile.MeshFilter.mesh;
+			mesh.indexFormat = IndexFormat.UInt32;
 			mesh.SetVertices(_newVertexList);
 			mesh.SetNormals(_newNormalList);
 			mesh.SetUVs(0, _newUvList);
@@ -162,7 +154,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 						tile.QueryHeightData(x / cap, 1 - (y + 1) / cap),
 						_currentTileMeshData.Vertices[(int)(y * cap + x) * 6 + 2].z);
 
-					//-- 
+					//--
 
 					_currentTileMeshData.Vertices[(int)(y * cap + x) * 6 + 3] = new Vector3(
 						_currentTileMeshData.Vertices[(int)(y * cap + x) * 6 + 3].x,
@@ -202,7 +194,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 				_meshData.Add(tile.UnwrappedTileId, tile.MeshFilter.mesh);
 			}
 
-			if (_elevationOptions.requiredOptions.addCollider)
+			if (_elevationOptions.colliderOptions.addCollider)
 			{
 				var meshCollider = tile.Collider as MeshCollider;
 				if (meshCollider)

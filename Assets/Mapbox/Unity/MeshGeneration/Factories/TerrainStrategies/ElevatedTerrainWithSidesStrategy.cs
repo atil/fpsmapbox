@@ -22,6 +22,11 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 		private Vector3 _newDir;
 		private int _vertA, _vertB, _vertC;
 		private int _counter;
+		public override int RequiredVertexCount
+		{
+			get { return _elevationOptions.modificationOptions.sampleCount * _elevationOptions.modificationOptions.sampleCount
+			             + (4 * _elevationOptions.modificationOptions.sampleCount); }
+		}
 
 		public override void Initialize(ElevationLayerProperties elOptions)
 		{
@@ -37,7 +42,6 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 			_newTriangleList = new List<int>();
 		}
 
-
 		public override void RegisterTile(UnityTile tile)
 		{
 			if (_elevationOptions.unityLayerOptions.addToLayer && tile.gameObject.layer != _elevationOptions.unityLayerOptions.layerId)
@@ -45,23 +49,25 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 				tile.gameObject.layer = _elevationOptions.unityLayerOptions.layerId;
 			}
 
-			if (tile.MeshRenderer == null)
+			if (tile.RasterDataState != Enums.TilePropertyState.Loaded)
 			{
-				var renderer = tile.gameObject.AddComponent<MeshRenderer>();
-				renderer.materials = new Material[2]
+				if (_elevationOptions.sideWallOptions.isActive)
 				{
-					_elevationOptions.requiredOptions.baseMaterial,
-					_elevationOptions.sideWallOptions.wallMaterial
-				};
+					var firstMat = tile.MeshRenderer.materials[0];
+					tile.MeshRenderer.materials = new Material[2]
+					{
+						firstMat,
+						_elevationOptions.sideWallOptions.wallMaterial
+					};
+				}
 			}
 
-			if (tile.MeshFilter == null)
+			if (tile.MeshFilter.mesh.vertexCount != RequiredVertexCount)
 			{
-				tile.gameObject.AddComponent<MeshFilter>();
 				CreateBaseMesh(tile);
 			}
 
-			if (_elevationOptions.requiredOptions.addCollider && tile.Collider == null)
+			if (_elevationOptions.colliderOptions.addCollider && tile.Collider == null)
 			{
 				tile.gameObject.AddComponent<MeshCollider>();
 			}
@@ -69,6 +75,11 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 			GenerateTerrainMesh(tile);
 		}
 
+		public override void DataErrorOccurred(UnityTile t, TileErrorEventArgs e)
+		{
+			ResetToFlatMesh(t);
+		}
+		
 		private void CreateBaseMesh(UnityTile tile)
 		{
 			//TODO use arrays instead of lists
@@ -137,7 +148,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 				_newUvList.Add(new Vector2(_newUvList[x * _sampleCount].y, 1));
 				_newUvList.Add(new Vector2(_newUvList[x * _sampleCount].y, 0));
 
-				//--- 
+				//---
 
 				_newVertexList.Add(_newVertexList[x * _sampleCount]);
 				_newVertexList.Add(new Vector3(
@@ -149,7 +160,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 				_newUvList.Add(new Vector2(_newUvList[x * _sampleCount].y, 1));
 				_newUvList.Add(new Vector2(_newUvList[x * _sampleCount].y, 0));
 
-				//--- 
+				//---
 
 				_newVertexList.Add(_newVertexList[(x + 1) * _sampleCount - 1]);
 				_newVertexList.Add(new Vector3(
@@ -161,7 +172,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 				_newUvList.Add(new Vector2(_newUvList[x * _sampleCount].y, 1));
 				_newUvList.Add(new Vector2(_newUvList[x * _sampleCount].y, 0));
 
-				//--- 
+				//---
 
 				_newVertexList.Add(_newVertexList[lastRow + x]);
 				_newVertexList.Add(new Vector3(
@@ -309,7 +320,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 				_meshData.Add(tile.UnwrappedTileId, tile.MeshFilter.mesh);
 			}
 
-			if (_elevationOptions.requiredOptions.addCollider)
+			if (_elevationOptions.colliderOptions.addCollider)
 			{
 				var meshCollider = tile.Collider as MeshCollider;
 				if (meshCollider)
@@ -321,23 +332,30 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 
 		private void ResetToFlatMesh(UnityTile tile)
 		{
-			tile.MeshFilter.mesh.GetVertices(_currentTileMeshData.Vertices);
-			tile.MeshFilter.mesh.GetNormals(_currentTileMeshData.Normals);
-
-			_counter = _currentTileMeshData.Vertices.Count;
-			for (int i = 0; i < _counter; i++)
+			if (tile.MeshFilter.mesh.vertexCount == 0)
 			{
-				_currentTileMeshData.Vertices[i] = new Vector3(
-					_currentTileMeshData.Vertices[i].x,
-					0,
-					_currentTileMeshData.Vertices[i].z);
-				_currentTileMeshData.Normals[i] = Mapbox.Unity.Constants.Math.Vector3Up;
+				CreateBaseMesh(tile);
 			}
+			else
+			{
+				tile.MeshFilter.mesh.GetVertices(_currentTileMeshData.Vertices);
+				tile.MeshFilter.mesh.GetNormals(_currentTileMeshData.Normals);
 
-			tile.MeshFilter.mesh.SetVertices(_currentTileMeshData.Vertices);
-			tile.MeshFilter.mesh.SetNormals(_currentTileMeshData.Normals);
+				_counter = _currentTileMeshData.Vertices.Count;
+				for (int i = 0; i < _counter; i++)
+				{
+					_currentTileMeshData.Vertices[i] = new Vector3(
+						_currentTileMeshData.Vertices[i].x,
+						0,
+						_currentTileMeshData.Vertices[i].z);
+					_currentTileMeshData.Normals[i] = Mapbox.Unity.Constants.Math.Vector3Up;
+				}
 
-			tile.MeshFilter.mesh.RecalculateBounds();
+				tile.MeshFilter.mesh.SetVertices(_currentTileMeshData.Vertices);
+				tile.MeshFilter.mesh.SetNormals(_currentTileMeshData.Normals);
+
+				tile.MeshFilter.mesh.RecalculateBounds();
+			}
 		}
 
 		/// <summary>

@@ -1,3 +1,5 @@
+using Mapbox.Unity.Map;
+
 namespace Mapbox.Unity.MeshGeneration.Modifiers
 {
 	using System.Collections.Generic;
@@ -13,24 +15,27 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 	public class LineMeshModifier : MeshModifier
 	{
 		[SerializeField]
-		public float Width = 3.0f;
+		LineGeometryOptions _options;
+
 		private float _scaledWidth;
 		public override ModifierType Type { get { return ModifierType.Preprocess; } }
 
-		protected virtual void OnEnable()
+		public override void SetProperties(ModifierProperties properties)
 		{
-			_scaledWidth = Width;
+			_options = (LineGeometryOptions)properties;
+			_options.PropertyHasChanged += UpdateModifier;
+
 		}
 
 		public override void Run(VectorFeatureUnity feature, MeshData md, float scale)
 		{
-			_scaledWidth = Width * scale;
+			_scaledWidth = _options.Width * scale;
 			ExtureLine(feature, md);
 		}
 
 		public override void Run(VectorFeatureUnity feature, MeshData md, UnityTile tile = null)
 		{
-			_scaledWidth = tile != null ? Width * tile.TileScale : Width;
+			_scaledWidth = tile != null ? _options.Width * tile.TileScale : _options.Width;
 			ExtureLine(feature, md);
 		}
 
@@ -77,8 +82,10 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 						newNorms[roadSegmentCount * 2 - 1] = Constants.Math.Vector3Up;
 						uvList[0] = new Vector2(0, 0);
 						uvList[roadSegmentCount * 2 - 1] = new Vector2(1, 0);
-						newTangents[0] = p3 - p2;
+						newTangents[0] = new Vector4(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z, 1).normalized;
+						newTangents[roadSegmentCount * 2 - 1] = newTangents[0];
 					}
+
 					var dist = Vector3.Distance(p1, p2);
 					lastUv += dist;
 					norm = GetNormal(p1, p2, p3) * _scaledWidth;
@@ -90,7 +97,8 @@ namespace Mapbox.Unity.MeshGeneration.Modifiers
 					uvList[i] = new Vector2(0, lastUv);
 					uvList[2 * roadSegmentCount - 1 - i] = new Vector2(1, lastUv);
 
-					newTangents[i] = p2 - p1;
+					newTangents[i] = new Vector4(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z, 1).normalized;
+					newTangents[2 * roadSegmentCount - 1 - i] = newTangents[i];
 				}
 
 				md.Vertices.AddRange(newVerticeList);

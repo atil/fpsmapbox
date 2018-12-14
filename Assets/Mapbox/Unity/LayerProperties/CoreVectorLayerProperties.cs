@@ -1,12 +1,12 @@
 ﻿namespace Mapbox.Unity.Map
 {
 	using System;
-	using System.Collections.Generic;
-	using Mapbox.Unity.MeshGeneration.Filters;
+	using Mapbox.Unity.MeshGeneration.Modifiers;
 	using UnityEngine;
 
+
 	[Serializable]
-	public class CoreVectorLayerProperties
+	public class CoreVectorLayerProperties : MapboxDataProperty, ISubLayerCoreOptions
 	{
 		[SerializeField]
 		private string sourceId;
@@ -21,18 +21,35 @@
 		[Tooltip("Snap features to the terrain elevation, use this option to draw features above terrain. ")]
 		public bool snapToTerrain = true;
 		[Tooltip("Groups features into one Unity GameObject.")]
-		public bool groupFeatures = false;
-		[Tooltip("Width of the line feature.")]
-		public float lineWidth = 1.0f;
-	}
+		public bool combineMeshes = false;
 
-	[Serializable]
-	public class VectorFilterOptions
-	{
-		[SerializeField]
-		private string _selectedLayerName;
-		public List<LayerFilter> filters = new List<LayerFilter>();
-		[Tooltip("Operator to combine filters. ")]
-		public LayerFilterCombinerOperationType combinerType = LayerFilterCombinerOperationType.All;
+
+		public override bool HasChanged
+		{
+			set
+			{
+				if (value == true)
+				{
+					OnPropertyHasChanged(new VectorLayerUpdateArgs { property = this });
+				}
+			}
+		}
+
+		/// <summary>
+		/// Change the primtive type of the feature which will be used to decide
+		/// what type of mesh operations features will require.
+		/// In example, roads are generally visualized as lines and buildings are
+		/// generally visualized as polygons.
+		/// </summary>
+		/// <param name="type">Primitive type of the featues in the layer.</param>
+		public virtual void SetPrimitiveType(VectorPrimitiveType type)
+		{
+			if (geometryType != type)
+			{
+				geometryType = type;
+				HasChanged = true;
+			}
+		}
+
 	}
 }

@@ -7,6 +7,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 	using Mapbox.Unity.MeshGeneration.Data;
 	using Mapbox.Unity.Utilities;
 	using Mapbox.Unity.Map;
+	using System.Collections.Generic;
 
 	public enum MapImageType
 	{
@@ -24,6 +25,15 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 		[SerializeField]
 		ImageryLayerProperties _properties;
 		protected ImageDataFetcher DataFetcher;
+
+		public ImageryLayerProperties Properties
+		{
+			get
+			{
+				return _properties;
+			}
+		}
+
 		public string MapId
 		{
 			get
@@ -40,6 +50,7 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 		#region UnityMethods
 		protected virtual void OnDestroy()
 		{
+			//unregister events
 			if (DataFetcher != null)
 			{
 				DataFetcher.DataRecieved -= OnImageRecieved;
@@ -53,20 +64,26 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 		{
 			if (tile != null)
 			{
-				Progress--;
-				tile.SetRasterData(rasterTile.Data, _properties.rasterOptions.useMipMap, _properties.rasterOptions.useCompression);
-				tile.RasterDataState = TilePropertyState.Loaded;
+				if (tile.RasterDataState != TilePropertyState.Unregistered)
+				{
+					_tilesWaitingResponse.Remove(tile);
+					tile.SetRasterData(rasterTile.Data, _properties.rasterOptions.useMipMap, _properties.rasterOptions.useCompression);
+				}
 			}
 		}
 
 		//merge this with OnErrorOccurred?
-		protected virtual void OnDataError(UnityTile tile, TileErrorEventArgs e)
+		protected virtual void OnDataError(UnityTile tile, RasterTile rasterTile, TileErrorEventArgs e)
 		{
 			if (tile != null)
 			{
-				Progress--;
-				tile.RasterDataState = TilePropertyState.Error;
-				OnErrorOccurred(e);
+				if (tile.RasterDataState != TilePropertyState.Unregistered)
+				{
+					tile.RasterDataState = TilePropertyState.Error;
+					_tilesWaitingResponse.Remove(tile);
+					OnErrorOccurred(e);
+				}
+
 			}
 		}
 		#endregion
@@ -88,30 +105,62 @@ namespace Mapbox.Unity.MeshGeneration.Factories
 		{
 			if (_properties.sourceType == ImagerySourceType.None)
 			{
-				Progress++;
-				Progress--;
+				tile.SetRasterData(null);
+				tile.RasterDataState = TilePropertyState.None;
 				return;
 			}
-
-			tile.RasterDataState = TilePropertyState.Loading;
-			Progress++;
-			DataFetcher.FetchImage(tile.CanonicalTileId, MapId, tile, _properties.rasterOptions.useRetina);
+			else
+			{
+				tile.RasterDataState = TilePropertyState.Loading;
+				if (_properties.sourceType != ImagerySourceType.Custom)
+				{
+					_properties.sourceOptions.layerSource = MapboxDefaultImagery.GetParameters(_properties.sourceType);
+				}
+				ImageDataFetcherParameters parameters = new ImageDataFetcherParameters()
+				{
+					canonicalTileId = tile.CanonicalTileId,
+					tile = tile,
+					mapid = MapId,
+					useRetina = _properties.rasterOptions.useRetina
+				};
+				DataFetcher.FetchData(parameters);
+			}
 		}
 
 		/// <summary>
 		/// Method to be called when a tile error has occurred.
 		/// </summary>
 		/// <param name="e"><see cref="T:Mapbox.Map.TileErrorEventArgs"/> instance/</param>
-		protected override void OnErrorOccurred(TileErrorEventArgs e)
+		protected override void OnErrorOccurred(UnityTile tile, TileErrorEventArgs e)
 		{
+			base.OnErrorOccurred(tile, e);
+			if (tile != null)
+			{
+				tile.RasterDataState = TilePropertyState.Error;
+			}
 		}
 
 		protected override void OnUnregistered(UnityTile tile)
 		{
+			if (_tilesWaitingResponse != null && _tilesWaitingResponse.Contains(tile))
+			{
+				_tilesWaitingResponse.Remove(tile);
+			}
+		}
+
+		protected override void OnPostProcess(UnityTile tile)
+		{
 
 		}
 
+		public override void UnbindEvents()
+		{
+			base.UnbindEvents();
+		}
 
+		protected override void OnUnbindEvents()
+		{
+		}
 		#endregion
 	}
 }

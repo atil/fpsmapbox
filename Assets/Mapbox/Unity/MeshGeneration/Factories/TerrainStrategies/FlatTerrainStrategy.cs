@@ -10,6 +10,11 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 	{
 		Mesh _cachedQuad;
 
+		public override int RequiredVertexCount
+		{
+			get { return 4; }
+		}
+
 		public override void Initialize(ElevationLayerProperties elOptions)
 		{
 			_elevationOptions = elOptions;
@@ -22,35 +27,26 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 				tile.gameObject.layer = _elevationOptions.unityLayerOptions.layerId;
 			}
 
-			if (tile.MeshRenderer == null)
+			if (tile.RasterDataState != Enums.TilePropertyState.Loaded ||
+			    tile.MeshFilter.mesh.vertexCount != RequiredVertexCount)
 			{
-				var renderer = tile.gameObject.AddComponent<MeshRenderer>();
-
 				if (_elevationOptions.sideWallOptions.isActive)
 				{
-					renderer.materials = new Material[2]
+					var firstMat = tile.MeshRenderer.materials[0];
+					tile.MeshRenderer.materials = new Material[2]
 					{
-						_elevationOptions.requiredOptions.baseMaterial,
+						firstMat,
 						_elevationOptions.sideWallOptions.wallMaterial
 					};
 				}
-				else
-				{
-					renderer.material = _elevationOptions.requiredOptions.baseMaterial;
-				}
 			}
 
-			if (tile.MeshFilter == null)
+			if ((int)tile.ElevationType != (int)ElevationLayerType.FlatTerrain)
 			{
-				tile.gameObject.AddComponent<MeshFilter>();
-			}
-
-			// HACK: This is here in to make the system trigger a finished state.
-			tile.MeshFilter.sharedMesh = GetQuad(tile, _elevationOptions.sideWallOptions.isActive);
-
-			if (_elevationOptions.requiredOptions.addCollider && tile.Collider == null)
-			{
-				tile.gameObject.AddComponent<BoxCollider>();
+				tile.MeshFilter.mesh.Clear();
+				// HACK: This is here in to make the system trigger a finished state.
+				tile.MeshFilter.sharedMesh = GetQuad(tile, _elevationOptions.sideWallOptions.isActive);
+				tile.ElevationType = TileTerrainType.Flat;
 			}
 		}
 

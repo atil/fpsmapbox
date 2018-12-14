@@ -11,6 +11,10 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 	public class FlatSphereTerrainStrategy : TerrainStrategy
 	{
 		public float Radius { get { return _elevationOptions.modificationOptions.earthRadius; } }
+		public override int RequiredVertexCount
+		{
+			get { return _elevationOptions.modificationOptions.sampleCount * _elevationOptions.modificationOptions.sampleCount; }
+		}
 
 		public override void Initialize(ElevationLayerProperties elOptions)
 		{
@@ -24,23 +28,14 @@ namespace Mapbox.Unity.MeshGeneration.Factories.TerrainStrategies
 				tile.gameObject.layer = _elevationOptions.unityLayerOptions.layerId;
 			}
 
-			if (tile.MeshRenderer == null)
+			if ((int)tile.ElevationType != (int)ElevationLayerType.GlobeTerrain ||
+			    tile.MeshFilter.mesh.vertexCount != RequiredVertexCount)
 			{
-				var renderer = tile.gameObject.AddComponent<MeshRenderer>();
-				renderer.material = _elevationOptions.requiredOptions.baseMaterial;
+				tile.MeshFilter.mesh.Clear();
+				tile.ElevationType = TileTerrainType.Globe;
 			}
-
-			if (tile.MeshFilter == null)
-			{
-				tile.gameObject.AddComponent<MeshFilter>();
-			}
-
+		
 			GenerateTerrainMesh(tile);
-
-			if (_elevationOptions.requiredOptions.addCollider && tile.Collider == null)
-			{
-				tile.gameObject.AddComponent<MeshCollider>();
-			}
 		}
 
 		void GenerateTerrainMesh(UnityTile tile)

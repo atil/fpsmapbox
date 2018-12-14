@@ -309,42 +309,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd961b1c9541a4cee99686069ecce852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _initializeOnStart: 1
   _options:
     locationOptions:
       latitudeLongitude: 40.7648, -73.9808
       zoom: 16
     extentOptions:
       extentType: 0
-      cameraBoundsOptions:
-        camera: {fileID: 1351042193}
-        visibleBuffer: 0
-        disposeBuffer: 0
-        updateInterval: 0
-      rangeAroundCenterOptions:
-        west: 1
-        north: 1
-        east: 1
-        south: 1
-      rangeAroundTransformOptions:
-        targetTransform: {fileID: 0}
-        visibleBuffer: 0
-        disposeBuffer: 0
+      defaultExtents:
+        cameraBoundsOptions:
+          camera: {fileID: 0}
+          visibleBuffer: 0
+          disposeBuffer: 0
+        rangeAroundCenterOptions:
+          west: 1
+          north: 1
+          east: 1
+          south: 1
+        rangeAroundTransformOptions:
+          targetTransform: {fileID: 0}
+          visibleBuffer: 0
+          disposeBuffer: 0
     placementOptions:
       placementType: 1
       snapMapToZero: 0
     scalingOptions:
       scalingType: 1
       unityTileSize: 100
-    loadingTexture: {fileID: 0}
+    loadingTexture: {fileID: 2800000, guid: e2896a92727704803a9c422b043eae89, type: 3}
+    tileMaterial: {fileID: 2100000, guid: b9f23e9bce724fa4daac57ecded470b8, type: 2}
+  _initializeOnStart: 1
   _imagery:
     _layerProperty:
-      sourceType: 7
+      sourceType: 3
       sourceOptions:
         isActive: 1
         layerSource:
           Name: Streets
-          Id: mapbox://styles/mapbox/satellite-streets-v10
+          Id: mapbox://styles/mapbox/light-v9
           Modified: 
           UserName: 
       rasterOptions:
@@ -361,11 +362,11 @@ MonoBehaviour:
           Id: mapbox.terrain-rgb
           Modified: 
           UserName: 
-      elevationLayerType: 0
+      elevationLayerType: 1
       requiredOptions:
-        baseMaterial: {fileID: 2100000, guid: 29f6564f3583830448798d631c5d227c, type: 2}
-        addCollider: 0
         exaggerationFactor: 1
+      colliderOptions:
+        addCollider: 0
       modificationOptions:
         sampleCount: 10
         useRelativeHeight: 0
@@ -427,20 +428,22 @@ MonoBehaviour:
         entityPerCoroutine: 20
       vectorSubLayers:
       - coreOptions:
+          sourceId: 
           isActive: 1
           sublayerName: Buildings
           geometryType: 2
           layerName: building
           snapToTerrain: 1
-          groupFeatures: 1
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: building
           filters: []
           combinerType: 2
         extrusionOptions:
           _selectedLayerName: building
-          extrusionType: 1
+          extrusionType: 3
           extrusionGeometryType: 0
           propertyName: height
           propertyDescription: Number. Height of building or part of building.
@@ -450,28 +453,52 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 4
           texturingType: 3
           materials:
           - Materials:
-            - {fileID: 2100000, guid: d4d7464e3429a44e090f55a4ac17f110, type: 2}
+            - {fileID: 2100000, guid: a1aa333e18c0640d7b428eecff9c4af7, type: 2}
           - Materials:
-            - {fileID: 2100000, guid: 55cc6edead802446b9106b2998406844, type: 2}
+            - {fileID: 2100000, guid: c0653693b48614a139a124871d499679, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
-          colorPalette: {fileID: 11400000, guid: e1b79d6caac0144adada0c548ef06705,
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
+          colorPalette: {fileID: 11400000, guid: 57bdfa37edf7a4f7f999d19443497554,
             type: 2}
+          customStyleOptions:
+            texturingType: 3
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: a1aa333e18c0640d7b428eecff9c4af7, type: 2}
+            - Materials:
+              - {fileID: 2100000, guid: c0653693b48614a139a124871d499679, type: 2}
+            atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21,
+              type: 2}
+            colorPalette: {fileID: 11400000, guid: 57bdfa37edf7a4f7f999d19443497554,
+              type: 2}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 1
         buildingsWithUniqueIds: 1
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 0
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 1
           sublayerName: Parks
           geometryType: 2
           layerName: landuse
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: landuse
           filters:
@@ -494,6 +521,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 2
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -501,7 +529,23 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: 1843a50abea6fa448a61d143054f2166, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: ff2f824fb9ab7b54b90a44e4394d18ea, type: 2}
+            - Materials:
+              - {fileID: 2100000, guid: ff2f824fb9ab7b54b90a44e4394d18ea, type: 2}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 1
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
@@ -510,14 +554,19 @@ MonoBehaviour:
         - {fileID: 11400000, guid: 3505ec4e61e3f4c4d88fc3c5548e7144, type: 2}
         - {fileID: 11400000, guid: d5cfd67d46b2f4892ae231737f3a95f8, type: 2}
         - {fileID: 11400000, guid: 4aeb0629486794f25bf199af8a4f4830, type: 2}
+        presetFeatureType: 2
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 1
           sublayerName: Roads
           geometryType: 1
           layerName: road
           snapToTerrain: 1
-          groupFeatures: 1
-          lineWidth: 3
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: road
           filters: []
@@ -534,6 +583,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -541,20 +591,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
+            - Materials:
+              - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 1
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 1
           sublayerName: PoiLabels
           geometryType: 0
           layerName: poi_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: poi_label
           filters:
@@ -578,6 +649,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -585,21 +657,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 90f8fc7667430374d9ddd1907cf522dd, type: 2}
+        presetFeatureType: 3
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 1
           sublayerName: Pois
           geometryType: 0
           layerName: poi_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: poi_label
           filters: []
@@ -616,6 +709,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -623,7 +717,23 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
@@ -631,14 +741,19 @@ MonoBehaviour:
         GoModifiers:
         - {fileID: 11400000, guid: 873cf898fb44149798c637959fd811ba, type: 2}
         - {fileID: 11400000, guid: 69c9fbc203d6e934ea944041d43ea709, type: 2}
+        presetFeatureType: 3
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 1
           sublayerName: Water
           geometryType: 2
           layerName: water
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: water
           filters: []
@@ -655,6 +770,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -662,20 +778,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: 55643c4fd976d7e429bda0a90c976b14, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: 55643c4fd976d7e429bda0a90c976b14, type: 2}
+            - Materials:
+              - {fileID: 2100000, guid: 55643c4fd976d7e429bda0a90c976b14, type: 2}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 1
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: Waterway
           geometryType: 1
           layerName: waterway
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 3
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: waterway
           filters: []
@@ -692,6 +829,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -699,20 +837,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: ab4ee1288a054a84b85ba5cf5a0abf34, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: ab4ee1288a054a84b85ba5cf5a0abf34, type: 2}
+            - Materials:
+              - {fileID: 2100000, guid: ab4ee1288a054a84b85ba5cf5a0abf34, type: 2}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: Aeroway
           geometryType: 1
           layerName: aeroway
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: aeroway
           filters: []
@@ -729,6 +888,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -736,20 +896,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: c0be5c38e1944584b89f81505e3c4446, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: c0be5c38e1944584b89f81505e3c4446, type: 2}
+            - Materials:
+              - {fileID: 2100000, guid: c0be5c38e1944584b89f81505e3c4446, type: 2}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: BarrierLine
           geometryType: 1
           layerName: barrier_line
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: barrier_line
           filters: []
@@ -766,6 +947,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -773,20 +955,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: a4c397925829de8438fa9bb51535fd17, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: a4c397925829de8438fa9bb51535fd17, type: 2}
+            - Materials:
+              - {fileID: 2100000, guid: a4c397925829de8438fa9bb51535fd17, type: 2}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: LanduseOverlay
           geometryType: 2
           layerName: landuse_overlay
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: landuse_overlay
           filters: []
@@ -803,6 +1006,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 2
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -810,20 +1014,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 0}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: 7c0707aad770f0f4ca09b79e3961539b, type: 2}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 1
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 2
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: Admin
           geometryType: 1
           layerName: admin
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 3
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: admin
           filters: []
@@ -840,6 +1065,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -847,20 +1073,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
+            - Materials:
+              - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 1
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: CountryLabel
           geometryType: 0
           layerName: country_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: country_label
           filters: []
@@ -877,6 +1124,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -884,21 +1132,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: MarineLabel
           geometryType: 0
           layerName: marine_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: marine_label
           filters: []
@@ -915,6 +1184,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -922,21 +1192,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: StateLabel
           geometryType: 0
           layerName: state_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: state_label
           filters: []
@@ -953,6 +1244,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -960,21 +1252,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: WaterLabel
           geometryType: 0
           layerName: water_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: water_label
           filters: []
@@ -991,6 +1304,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -998,21 +1312,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: PlaceLabel
           geometryType: 0
           layerName: place_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: place_label
           filters: []
@@ -1029,6 +1364,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1036,21 +1372,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: RoadLabel
           geometryType: 0
           layerName: road_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: road_label
           filters: []
@@ -1067,6 +1424,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1074,21 +1432,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: WaterwayLabel
           geometryType: 0
           layerName: waterway_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: waterway_label
           filters: []
@@ -1105,6 +1484,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1112,21 +1492,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: AirportLabel
           geometryType: 0
           layerName: airport_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: airport_label
           filters: []
@@ -1143,6 +1544,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1150,21 +1552,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: RailStationLabel
           geometryType: 0
           layerName: rail_station_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: rail_station_label
           filters: []
@@ -1181,6 +1604,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1188,21 +1612,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: MountainPeakLabel
           geometryType: 0
           layerName: mountain_peak_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: mountain_peak_label
           filters: []
@@ -1219,6 +1664,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1226,21 +1672,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: HouseNumberLabel
           geometryType: 0
           layerName: housenum_label
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: housenum_label
           filters: []
@@ -1257,6 +1724,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1264,21 +1732,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: 856c73f1fff593349bebf4e5b37f6e50, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: MotorwayJunction
           geometryType: 0
           layerName: motorway_junction
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: motorway_junction
           filters: []
@@ -1295,6 +1784,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1302,21 +1792,42 @@ MonoBehaviour:
           - Materials:
             - {fileID: 2100000, guid: dd63290cb53906349af7ea675627a697, type: 2}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 0}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers:
         - {fileID: 11400000, guid: ceca5248b4c18354d8089a76da2f7f45, type: 2}
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: Landcover
           geometryType: 2
           layerName: building
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: building
           filters: []
@@ -1333,6 +1844,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1340,20 +1852,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 0}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: ff2f824fb9ab7b54b90a44e4394d18ea, type: 2}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 1
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 0
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: Hillshade
           geometryType: 2
           layerName: hillshade
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 1
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: hillshade
           filters: []
@@ -1370,6 +1903,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1377,20 +1911,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 0}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: 204bcfc5761ef1b46b9301bc80304e2b, type: 2}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 1
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
+          sourceId: 
           isActive: 0
           sublayerName: Contour
           geometryType: 1
           layerName: contour
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 3
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: contour
           filters: []
@@ -1407,6 +1962,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1414,20 +1970,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 0}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: c0be5c38e1944584b89f81505e3c4446, type: 2}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
-          isActive: 1
+          sourceId: 
+          isActive: 0
           sublayerName: LowTrafficCongestion
           geometryType: 1
           layerName: traffic
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 3
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: traffic
           filters:
@@ -1451,6 +2028,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1458,20 +2036,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 0}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: aaa94592a6eb9c8418d32b37b10f288d, type: 2}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
-          isActive: 1
+          sourceId: 
+          isActive: 0
           sublayerName: ModerateTrafficCongestion
           geometryType: 1
           layerName: traffic
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 3
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: traffic
           filters:
@@ -1495,6 +2094,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1502,20 +2102,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 0}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: 8d222a6659da43e45b6274794e67d47a, type: 2}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
-          isActive: 1
+          sourceId: 
+          isActive: 0
           sublayerName: HeavyTrafficCongestion
           geometryType: 1
           layerName: traffic
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 3
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: traffic
           filters:
@@ -1539,6 +2160,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1546,20 +2168,41 @@ MonoBehaviour:
           - Materials:
             - {fileID: 0}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: bdad3ccf6401a414188827874d8999aa, type: 2}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       - coreOptions:
-          isActive: 1
+          sourceId: 
+          isActive: 0
           sublayerName: SevereTrafficCongestion
           geometryType: 1
           layerName: traffic
           snapToTerrain: 1
-          groupFeatures: 0
-          lineWidth: 3
+          combineMeshes: 0
+        lineGeometryOptions:
+          Width: 1
         filterOptions:
           _selectedLayerName: traffic
           filters:
@@ -1583,6 +2226,7 @@ MonoBehaviour:
         colliderOptions:
           colliderType: 0
         materialOptions:
+          style: 0
           texturingType: 0
           materials:
           - Materials:
@@ -1590,12 +2234,31 @@ MonoBehaviour:
           - Materials:
             - {fileID: 0}
           atlasInfo: {fileID: 11400000, guid: 414754d7155df47beb52ca117a774f21, type: 2}
+          lightStyleOpacity: 1
+          darkStyleOpacity: 1
+          colorStyleColor: {r: 1, g: 1, b: 1, a: 1}
+          samplePalettes: 0
           colorPalette: {fileID: 0}
+          customStyleOptions:
+            texturingType: 0
+            materials:
+            - Materials:
+              - {fileID: 2100000, guid: 0de83c8715792fe43aceecafcdbd8b24, type: 2}
+            - Materials:
+              - {fileID: 0}
+            atlasInfo: {fileID: 0}
+            colorPalette: {fileID: 0}
+        performanceOptions:
+          isEnabled: 1
+          entityPerCoroutine: 20
         honorBuildingIdSetting: 0
         buildingsWithUniqueIds: 0
         moveFeaturePositionTo: 0
         MeshModifiers: []
         GoModifiers: []
+        presetFeatureType: 4
+        _maskValue: 0
+        selectedTypes: 
       locationPrefabList: []
   _tileProvider: {fileID: 0}
 --- !u!1 &165147574
@@ -2575,9 +3238,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9527fd56bc6a0c549a1e550219f9b16e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _map: {fileID: 110210642}
   _panSpeed: 5
   _zoomSpeed: 0
-  _referenceCamera: {fileID: 0}
+  _referenceCamera: {fileID: 1351042193}
 --- !u!114 &1351042188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2892,12 +3556,12 @@ Prefab:
         type: 2}
       propertyPath: m_Text
       value: "<b>Data Explorer</b>\n\nExplore Mapbox\u2019s location data. Each map
-        vector tile includes high levels of detail about a particular location or
-        building that you can leverage for procedurally generating experiences or
+        vector tile contains detailed info about locations and buildings. You can
+        leverage this data to procedurally generate experiences or for data-driven
         styling. The data layers include building data, points of interest (POIs),
-        roads, and real-time traffic data. You can filter these data layers on and
-        off as needed in the Map Editor (access through the Mapbox menu). Also, note
-        the POIs are shown both as labels and as prefabs."
+        roads, and real-time traffic data. You can toggle these data layers on and
+        off as needed under MAP LAYERS -> FEATURES section of the Map prefab. Also,
+        note the POIs are shown both as labels and as prefabs."
       objectReference: {fileID: 0}
     - target: {fileID: 224907993215804030, guid: 98be219873e6d4dffb5949746f515a33,
         type: 2}
@@ -3034,12 +3698,6 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114103084892184410, guid: b95c449128f3b44bca8b83258c669aa5,
-        type: 2}
-      propertyPath: MapVisualizer
-      value: 
-      objectReference: {fileID: 11400000, guid: 02a98fd6de7af4e4985b970acb849e8b,
-        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: b95c449128f3b44bca8b83258c669aa5, type: 2}
   m_IsPrefabParent: 0
@@ -3104,13 +3762,13 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
+  m_Color: {r: 0.8820755, g: 0.99342215, b: 1, a: 1}
+  m_Intensity: 1.2
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 0.5
@@ -3137,13 +3795,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1906963057}
-  m_LocalRotation: {x: 0.12236196, y: -0.86748886, z: 0.40451667, w: 0.26240608}
+  m_LocalRotation: {x: -0.19746037, y: -0.73391217, z: 0.50843805, w: 0.40481248}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 50, y: -146.34, z: 0}
+  m_LocalEulerAnglesHint: {x: 35.904, y: -101.049, z: 60}
 --- !u!1001 &2004251622
 Prefab:
   m_ObjectHideFlags: 0
