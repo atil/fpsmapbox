@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Mapbox.Unity;
 using UnityEngine;
 
 /// <summary>
@@ -15,6 +16,9 @@ public class FpsController : MonoBehaviour
     [SerializeField] 
     private Transform _camTransform;
 
+    [SerializeField]
+    private Animator _animator;
+    
     // Collision resolving is done with respect to this volume
     [SerializeField]
     private CapsuleCollider _collisionVolume;
@@ -121,6 +125,7 @@ public class FpsController : MonoBehaviour
     {
         _transform = transform;
         _ghostJumpRayPosition = _groundedRayPositions.Last();
+        Cursor.visible = false;
     }
 
     // Only for debug drawing
@@ -247,8 +252,20 @@ public class FpsController : MonoBehaviour
         _isGroundedInPrevFrame = isGrounded;
         
         _hook.Draw();
+        
+        _animator.SetBool("OnGround", isGrounded);
+        _animator.SetFloat("Forward", Mathf.Lerp(0, 1, _velocity.WithY(0).magnitude / MaxSpeedAlongOneDimension));
+        _animator.SetFloat("Turn", Mathf.Clamp(_moveInput.x, -0.4f, 0.4f));
+        _animator.SetFloat("JumpLeg", _moveInput.x);
+
+        _animator.SetFloat("Jump", Mathf.Lerp(-5, 5, Lerp(_velocity.y, -8f, 8f)));
     }
 
+    private float Lerp(float a, float b, float c)
+    {
+        return (a - b) / (c - b);
+    }
+    
     private void Accelerate(ref Vector3 playerVelocity, Vector3 accelDir, float accelCoeff, float dt)
     {
         // How much speed we already have in the direction we want to speed up
@@ -425,7 +442,7 @@ public class FpsController : MonoBehaviour
 
     private void MouseLook(ref float pitch, float dt, bool isInverted)
     {
-        const float cameraDistance = 5;
+        const float cameraDistance = 3;
         
         pitch += Input.GetAxis("Mouse Y") * -Sensitivity * dt * (isInverted ? -1 : 1);
         pitch = Mathf.Clamp(_pitch, -89, 89);
