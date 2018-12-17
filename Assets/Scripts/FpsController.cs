@@ -10,6 +10,9 @@ public class FpsController : MonoBehaviour
 {
     #region Drag Drop
     [SerializeField]
+    private Transform _camFollow;
+
+    [SerializeField] 
     private Transform _camTransform;
 
     // Collision resolving is done with respect to this volume
@@ -111,6 +114,7 @@ public class FpsController : MonoBehaviour
     private bool _isGroundedInPrevFrame; 
     private bool _isGonnaJump; 
     private Vector3 _wishDirDebug;
+
     #endregion
 
     private void Start()
@@ -135,14 +139,14 @@ public class FpsController : MonoBehaviour
 
         // Draw horizontal speed as a line
         var mid = new Vector2(Screen.width / 2, Screen.height / 2); // Should remain integer division, otherwise GUI drawing gets screwed up
-        var v = _camTransform.InverseTransformDirectionHorizontal(_velocity) * _velocity.WithY(0).magnitude * 10f;
+        var v = _camFollow.InverseTransformDirectionHorizontal(_velocity) * _velocity.WithY(0).magnitude * 10f;
         if (v.WithY(0).magnitude > 0.0001)
         {
             Drawing.DrawLine(mid, mid + Vector2.up * -v.z + Vector2.right * v.x, Color.red, 3f);
         }
 
         // Draw input direction
-        var w = _camTransform.InverseTransformDirectionHorizontal(_wishDirDebug) * 100;
+        var w = _camFollow.InverseTransformDirectionHorizontal(_wishDirDebug) * 100;
         if (w.magnitude > 0.001)
         {
             Drawing.DrawLine(mid, mid + Vector2.up * -w.z + Vector2.right * w.x, Color.blue, 2f);
@@ -167,10 +171,7 @@ public class FpsController : MonoBehaviour
             _isGonnaJump = false;
         }
 
-        // Mouse look
-        _pitch += Input.GetAxis("Mouse Y") * -Sensitivity * dt * (_isInverted ? -1 : 1);
-        _pitch = Mathf.Clamp(_pitch, -89, 89);
-        _camTransform.localRotation = Quaternion.Euler(Vector3.right * _pitch);
+        MouseLook(ref _pitch, dt, _isInverted);       
         _transform.rotation *= Quaternion.Euler(Input.GetAxis("Mouse X") * Sensitivity * dt * Vector3.up);
         if (Input.GetKeyDown(KeyCode.I))
         {
@@ -188,10 +189,9 @@ public class FpsController : MonoBehaviour
             _hook.ResetHook();
         }
         
-
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////// MOVEMENT ///////////////////////////////////////////////
-        var wishDir = _camTransform.TransformDirectionHorizontal(_moveInput); // We want to go in this direction
+        var wishDir = _camFollow.TransformDirectionHorizontal(_moveInput); // We want to go in this direction
         _wishDirDebug = wishDir.ToHorizontal();
 
         Vector3 groundNormal;
@@ -308,7 +308,7 @@ public class FpsController : MonoBehaviour
             // CPMA thingy:
             // If we want pure forward movement, we have much more air 
             // Of course this only happens when we're not hooked
-            var accelDirLocal = _camTransform.InverseTransformDirectionHorizontal(accelDir);
+            var accelDirLocal = _camFollow.InverseTransformDirectionHorizontal(accelDir);
             var isPureForward = Mathf.Abs(accelDirLocal.x) < 0.0001 && Mathf.Abs(accelDirLocal.z) > 0;
             if (isPureForward && _hook.State == HookState.Off)
             {
@@ -423,6 +423,26 @@ public class FpsController : MonoBehaviour
         }
     }
 
+    private void MouseLook(ref float pitch, float dt, bool isInverted)
+    {
+        const float cameraDistance = 5;
+        
+        pitch += Input.GetAxis("Mouse Y") * -Sensitivity * dt * (isInverted ? -1 : 1);
+        pitch = Mathf.Clamp(_pitch, -89, 89);
+        _camFollow.localRotation = Quaternion.Euler(Vector3.right * pitch);
+        _camTransform.rotation = _camFollow.rotation;
+
+        var target = _camFollow.position - _camFollow.forward * cameraDistance;
+        var isColliding = true;
+        for (var i = 0; i < 20 && isColliding; i++)
+        {
+            isColliding = Physics.Raycast(_camFollow.position, target - _camFollow.position, Vector3.Distance(_camFollow.position, target), ~_excludedLayers);
+            target += _camTransform.forward * cameraDistance / 20;
+        }
+
+        _camTransform.position = Vector3.Lerp(_camTransform.position, target, dt * 20);
+    }
+    
     public void ResetAt(Transform t, Transform lookAt)
     {
         _transform.position = t.position;
